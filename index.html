@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUREUS // 黑金快傳與文字洗滌站</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ably Realtime SDK (用於跨裝置同步) -->
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <!-- QRCode.js (生成房間 QR Code) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            background-color: #0d0d0d;
+            color: #d4af37;
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+        }
+        .gold-border { border: 1px solid #d4af37; }
+        .gold-glow { box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
+        .gold-button {
+            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+            color: #000000;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .gold-button:hover {
+            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 100%);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl flex justify-between items-center pb-6 border-b border-yellow-900/40">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-700">
+                AUREUS VAULT
+            </h1>
+            <p class="text-xs text-yellow-600/80 tracking-wider">黑金極速快傳 // 今日即銷毀</p>
+        </div>
+        <div class="text-right">
+            <span class="text-xs text-yellow-600 block">房間代碼 (Room)</span>
+            <span id="room-id" class="text-sm font-mono font-bold text-yellow-400">CONNECTING...</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 my-6 flex-grow">
+        
+        <!-- Left: QRCode & Room Share -->
+        <div class="bg-neutral-900/80 p-5 rounded-xl gold-border gold-glow flex flex-col items-center justify-center text-center">
+            <h2 class="text-sm font-semibold tracking-wider mb-4 text-yellow-400">手機掃碼同步連線</h2>
+            <div id="qrcode" class="p-2 bg-black rounded-lg gold-border mb-4"></div>
+            <p class="text-xs text-neutral-400 max-w-[200px]">用手機鏡頭掃描此 QR Code，即可在手機上開啟同一個同步房間。</p>
+        </div>
+
+        <!-- Right: Text Input & Auto Clean Tools -->
+        <div class="md:col-span-2 bg-neutral-900/80 p-5 rounded-xl gold-border gold-glow flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-semibold tracking-wider text-yellow-400">同步文字剪貼簿</label>
+                    <span class="text-xs text-neutral-500">不留存資料庫 // 關閉即銷毀</span>
+                </div>
+                <textarea id="text-input" rows="8" class="w-full p-4 bg-black border border-yellow-900/50 rounded-lg text-yellow-100 placeholder-neutral-700 focus:outline-none focus:border-yellow-500 transition-colors" placeholder="在此貼上文字，手機與電腦將即時同步..."></textarea>
+            </div>
+
+            <!-- Quick Cleaner Buttons -->
+            <div class="mt-4">
+                <span class="text-xs text-yellow-600 block mb-2">一鍵文字洗滌工具 (Auto-Clean)</span>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <button onclick="cleanUTM()" class="px-3 py-2 text-xs rounded gold-button">去除網址追蹤碼</button>
+                    <button onclick="removeNewlines()" class="px-3 py-2 text-xs rounded gold-button">清除無用換行</button>
+                    <button onclick="simpToTrad()" class="px-3 py-2 text-xs rounded gold-button">簡體轉繁體</button>
+                    <button onclick="copyText()" class="px-3 py-2 text-xs rounded border border-yellow-500 text-yellow-400 hover:bg-yellow-500/10">複製結果</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Status -->
+    <footer class="w-full max-w-4xl pt-4 border-t border-yellow-900/40 flex justify-between items-center text-xs text-neutral-500">
+        <span>STATUS: <span id="status-text" class="text-yellow-500">READY</span></span>
+        <span>AUTO-DESTROY AT MIDNIGHT</span>
+    </footer>
+
+    <!-- JavaScript Engine -->
+    <script>
+        // 1. 初始化房間 ID (使用 URL Hash 或自動生成當天的 Room ID)
+        const todayStr = new Date().toISOString().slice(0, 10);
+        let roomId = window.location.hash.replace('#', '');
+        if (!roomId) {
+            roomId = 'room-' + Math.random().toString(36).substring(2, 8);
+            window.location.hash = roomId;
+        }
+        document.getElementById('room-id').innerText = roomId;
+
+        // 2. 生成 QR Code
+        new QRCode(document.getElementById("qrcode"), {
+            text: window.location.href,
+            width: 128,
+            height: 128,
+            colorDark : "#d4af37",
+            colorLight : "#000000",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+
+        // 3. WebSockets 即時廣播設定 (需替換為你的 Ably API Key)
+        // 提示：註冊 Ably.com 免費版即可取得 API Key (免費額度每日 600 萬次訊息)
+        const ABLY_API_KEY = 'YOUR_ABLY_API_KEY_HERE'; 
+        let channel;
+
+        if (ABLY_API_KEY !== 'YOUR_ABLY_API_KEY_HERE') {
+            const ably = new Ably.Realtime(ABLY_API_KEY);
+            channel = ably.channels.get(roomId + '-' + todayStr);
+
+            // 監聽來自其他裝置的同步文字
+            channel.subscribe('text-update', (msg) => {
+                document.getElementById('text-input').value = msg.data;
+                sessionStorage.setItem('saved_text', msg.data);
+            });
+        }
+
+        // 當本地輸入文字時，廣播給其他裝置
+        const textarea = document.getElementById('text-input');
+        textarea.addEventListener('input', (e) => {
+            const val = e.target.value;
+            sessionStorage.setItem('saved_text', val);
+            if (channel) {
+                channel.publish('text-update', val);
+            }
+        });
+
+        // 載入當天暫存（重新整理時不消失，但過當天銷毀）
+        const saved = sessionStorage.getItem('saved_text');
+        if (saved) textarea.value = saved;
+
+        // --- 剪貼簿一鍵洗滌功能 (Auto-Clean Logic) ---
+
+        // 1. 去除網址追蹤碼 (UTM / FBCLID 等)
+        function cleanUTM() {
+            let text = textarea.value;
+            // 抓出網址並移除 ?utm_=... 或 &fbclid=... 等追蹤參數
+            text = text.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+                try {
+                    let u = new URL(url);
+                    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid', 'igshid'].forEach(p => u.searchParams.delete(p));
+                    return u.toString();
+                } catch(e) { return url; }
+            });
+            updateText(text);
+        }
+
+        // 2. 清除無用換行 (常用於 PDF 複製文字)
+        function removeNewlines() {
+            let text = textarea.value;
+            text = text.replace(/([^\n])\n([^\n])/g, '$1 $2').replace(/\n+/g, '\n');
+            updateText(text);
+        }
+
+        // 3. 簡體轉繁體 (輕量級對照替換)
+        function simpToTrad() {
+            let text = textarea.value;
+            const map = {'这':'這', '么':'麼', '摸':'麼', '体':'體', '国':'國', '学':'學', '写':'寫', '软':'軟', '件':'件', '网':'網', '页':'頁', '码':'碼', '设':'設', '计':'計', '资':'資', '料':'料', '发':'發', '现':'現', '动':'動', '简':'簡', '繁':'繁'};
+            text = text.split('').map(char => map[char] || char).join('');
+            updateText(text);
+        }
+
+        // 4. 一鍵複製
+        function copyText() {
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value);
+            document.getElementById('status-text').innerText = 'COPIED TO CLIPBOARD!';
+            setTimeout(() => { document.getElementById('status-text').innerText = 'READY'; }, 2000);
+        }
+
+        function updateText(newText) {
+            textarea.value = newText;
+            textarea.dispatchEvent(new Event('input'));
+        }
+    </script>
+</body>
+</html>
