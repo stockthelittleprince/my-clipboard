@@ -7,347 +7,381 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- html2canvas (用於一鍵匯出卡片圖片) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <style>
-        body { background-color: #0b0b0d; color: #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .gold-border { border: 1px solid rgba(212, 175, 55, 0.4); }
-        .gold-glow { box-shadow: 0 0 20px rgba(212, 175, 55, 0.12); }
-        .gold-button {
-            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
-            color: #000; font-weight: bold; transition: all 0.2s ease;
-        }
-        .gold-button:hover {
-            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 100%);
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
-        }
-        .card-bg { background: linear-gradient(145deg, #141419 0%, #08080a 100%); }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col items-center justify-between p-4 md:p-8">
-
-    <!-- Header -->
-    <header class="w-full max-w-4xl flex justify-between items-center pb-4 border-b border-yellow-900/30">
-        <div>
-            <h1 class="text-2xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-700">
-                AUREUS // SPLIT MATRIX
-            </h1>
-            <p class="text-xs text-yellow-600/80">旅遊聚會無痛拆帳 // 最少轉帳次數演算法</p>
-        </div>
-        <button onclick="resetAll()" class="text-xs px-3 py-1.5 rounded border border-red-900/50 text-red-400 hover:bg-red-950/30">重置所有紀錄</button>
-    </header>
-
-    <!-- Main Content -->
-    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 my-6 flex-grow">
-        
-        <!-- Left Column: Input Form -->
-        <div class="space-y-6">
-            <!-- 1. 成員設定 -->
-            <div class="card-bg p-5 rounded-xl gold-border gold-glow">
-                <h2 class="text-sm font-bold text-yellow-400 mb-3">1. 參與成員 (用逗號或空格分開)</h2>
-                <div class="flex gap-2">
-                    <input type="text" id="members-input" value="小明, 阿傑, 莉莉, 小華" class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500" placeholder="例如: 小明, 阿傑, 莉莉">
-                    <button onclick="updateMembers()" class="px-4 text-xs rounded gold-button shrink-0">更新</button>
-                </div>
-            </div>
-
-            <!-- 2. 新增消費 -->
-            <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-3">
-                <h2 class="text-sm font-bold text-yellow-400">2. 新增款項紀錄</h2>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script> 
+    <style> 
+        body { background-color: #0b0b0d; color: #e5e7eb; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; } 
+        .gold-border { border: 1px solid rgba(212, 175, 55, 0.4); } 
+        .gold-glow { box-shadow: 0 0 20px rgba(212, 175, 55, 0.12); } 
+        .gold-button { 
+            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%); 
+            color: #000; font-weight: bold; transition: all 0.2s ease; 
+        } 
+        .gold-button:hover { 
+            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 100%); 
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.4); 
+        } 
+        .card-bg { background: linear-gradient(145deg, #141419 0%, #08080a 100%); } 
+    </style> 
+</head> 
+<body class="min-h-screen flex flex-col items-center justify-between p-4 md:p-8"> 
+ 
+    <!-- Header --> 
+    <header class="w-full max-w-4xl flex justify-between items-center pb-4 border-b border-yellow-900/30"> 
+        <div> 
+            <h1 class="text-2xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-700"> 
+                AUREUS // SPLIT MATRIX 
+            </h1> 
+            <p class="text-xs text-yellow-600/80">旅遊聚會無痛拆帳 // 最少轉帳次數演算法</p> 
+        </div> 
+        <button onclick="resetAll()" class="text-xs px-3 py-1.5 rounded border border-red-900/50 text-red-400 hover:bg-red-950/30 transition-colors">重置所有紀錄</button> 
+    </header> 
+ 
+    <!-- Main Content --> 
+    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 my-6 flex-grow"> 
+         
+        <!-- Left Column: Input Form --> 
+        <div class="space-y-6"> 
+            <!-- 1. 成員設定與幣別切換 --> 
+            <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-4"> 
                 <div>
-                    <label class="text-xs text-neutral-400 block mb-1">消費項目描述</label>
-                    <input type="text" id="item-title" class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100" placeholder="例如：包車費、晚餐酒吧">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-xs text-neutral-400 block mb-1">先墊錢的人 (付款人)</label>
-                        <select id="payer-select" class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-200"></select>
-                    </div>
-                    <div>
-                        <label class="text-xs text-neutral-400 block mb-1">金額 (NT$)</label>
-                        <input type="number" id="item-amount" class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100" placeholder="0">
-                    </div>
-                </div>
-                <div>
-                    <label class="text-xs text-neutral-400 block mb-1">誰需要一起分攤這筆錢？</label>
-                    <div id="sharers-checkboxes" class="flex flex-wrap gap-3 p-2 bg-black/50 border border-yellow-900/30 rounded text-xs"></div>
-                </div>
-                <button onclick="addExpense()" class="w-full py-2.5 text-xs rounded gold-button mt-2">+ 新增此筆款項</button>
-            </div>
-
-            <!-- 消費清單歷史 -->
-            <div class="card-bg p-4 rounded-xl gold-border">
-                <h3 class="text-xs font-semibold text-neutral-400 mb-2">已輸入款項列表</h3>
-                <div id="expense-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div>
-            </div>
-        </div>
-
-        <!-- Right Column: Result Card & Settlement -->
-        <div class="flex flex-col justify-between space-y-4">
-            <!-- 可一鍵截圖的結算卡片 -->
-            <div id="settlement-card" class="card-bg p-6 rounded-xl gold-border gold-glow space-y-5 relative overflow-hidden">
-                <!-- 裝飾微光 -->
-                <div class="absolute -top-12 -right-12 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-                <div class="border-b border-yellow-900/40 pb-3 flex justify-between items-end">
-                    <div>
-                        <span class="text-[10px] tracking-widest text-yellow-600 font-mono block">AUREUS SETTLEMENT</span>
-                        <h2 class="text-lg font-bold text-yellow-400">最佳化轉帳結算單</h2>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-[10px] text-neutral-500 block">總消費金額</span>
-                        <span id="total-amount" class="text-base font-mono font-bold text-yellow-200">NT$ 0</span>
-                    </div>
+                    <h2 class="text-sm font-bold text-yellow-400 mb-2">1. 參與成員 (用逗號或空格分開)</h2> 
+                    <div class="flex gap-2"> 
+                        <input type="text" id="members-input" value="小明, 阿傑, 莉莉, 小華" class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500" placeholder="例如: 小明, 阿傑, 莉莉"> 
+                        <button onclick="updateMembers()" class="px-4 text-xs rounded gold-button shrink-0">更新成員</button> 
+                    </div> 
                 </div>
 
-                <!-- 結算結果 (最小流優化) -->
-                <div>
-                    <h3 class="text-xs font-semibold text-yellow-600 tracking-wider mb-3">最簡化轉帳方案 (最小化流轉)：</h3>
-                    <div id="settlement-results" class="space-y-2.5">
-                        <p class="text-xs text-neutral-500 italic">請先新增款項以計算最佳轉帳方式...</p>
-                    </div>
-                </div>
-
-                <!-- 個人結算明細 -->
                 <div class="border-t border-yellow-900/30 pt-3">
-                    <h3 class="text-xs font-semibold text-neutral-400 mb-2">個人淨額明細 (+應收 / -應付)</h3>
-                    <div id="person-net-list" class="grid grid-cols-2 gap-2 text-xs font-mono"></div>
+                    <label class="text-xs text-neutral-400 block mb-1">顯示幣別 (單位名稱，刷新頁面後恢復為台幣)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="currency-input" value="NT$" class="w-full p-2 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500" placeholder="例如: NT$, JPY, USD, HKD">
+                        <button onclick="updateCurrency()" class="px-3 text-xs rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/10 shrink-0">變更幣別</button>
+                    </div>
                 </div>
+            </div> 
+ 
+            <!-- 2. 新增消費 --> 
+            <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-3"> 
+                <h2 class="text-sm font-bold text-yellow-400">2. 新增款項紀錄</h2> 
+                <div> 
+                    <label class="text-xs text-neutral-400 block mb-1">消費項目描述</label> 
+                    <input type="text" id="item-title" class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100 focus:outline-none focus:border-yellow-500" placeholder="例如：包車費、晚餐酒吧"> 
+                </div> 
+                <div class="grid grid-cols-2 gap-3"> 
+                    <div> 
+                        <label class="text-xs text-neutral-400 block mb-1">先墊錢的人 (付款人)</label> 
+                        <select id="payer-select" class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-200 focus:outline-none focus:border-yellow-500"></select> 
+                    </div> 
+                    <div> 
+                        <label id="amount-label" class="text-xs text-neutral-400 block mb-1">金額 (NT$)</label> 
+                        <input type="number" id="item-amount" step="any" class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100 focus:outline-none focus:border-yellow-500" placeholder="0"> 
+                    </div> 
+                </div> 
+                <div> 
+                    <label class="text-xs text-neutral-400 block mb-1">誰需要一起分攤這筆錢？</label> 
+                    <div id="sharers-checkboxes" class="flex flex-wrap gap-3 p-2 bg-black/50 border border-yellow-900/30 rounded text-xs"></div> 
+                </div> 
+                <button onclick="addExpense()" class="w-full py-2.5 text-xs rounded gold-button mt-2">+ 新增此筆款項</button> 
+            </div> 
+ 
+            <!-- 消費清單歷史 --> 
+            <div class="card-bg p-4 rounded-xl gold-border"> 
+                <h3 class="text-xs font-semibold text-neutral-400 mb-2">已輸入款項列表</h3> 
+                <div id="expense-list" class="space-y-2 max-h-48 overflow-y-auto text-xs"></div> 
+            </div> 
+        </div> 
+ 
+        <!-- Right Column: Result Card & Settlement --> 
+        <div class="flex flex-col justify-between space-y-4"> 
+            <!-- 可一鍵截圖的結算卡片 --> 
+            <div id="settlement-card" class="card-bg p-6 rounded-xl gold-border gold-glow space-y-5 relative overflow-hidden"> 
+                <!-- 裝飾微光 --> 
+                <div class="absolute -top-12 -right-12 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl pointer-events-none"></div> 
+ 
+                <div class="border-b border-yellow-900/40 pb-3 flex justify-between items-end"> 
+                    <div> 
+                        <span class="text-[10px] tracking-widest text-yellow-600 font-mono block">AUREUS SETTLEMENT</span> 
+                        <h2 class="text-lg font-bold text-yellow-400">最佳化轉帳結算單</h2> 
+                    </div> 
+                    <div class="text-right"> 
+                        <span class="text-[10px] text-neutral-500 block">總消費金額</span> 
+                        <span id="total-amount" class="text-base font-mono font-bold text-yellow-200">NT$ 0</span> 
+                    </div> 
+                </div> 
+ 
+                <!-- 結算結果 (最小流優化) --> 
+                <div> 
+                    <h3 class="text-xs font-semibold text-yellow-600 tracking-wider mb-3">最簡化轉帳方案 (最小化流轉)：</h3> 
+                    <div id="settlement-results" class="space-y-2.5"> 
+                        <p class="text-xs text-neutral-500 italic">請先新增款項以計算最佳轉帳方式...</p> 
+                    </div> 
+                </div> 
+ 
+                <!-- 個人結算明細 --> 
+                <div class="border-t border-yellow-900/30 pt-3"> 
+                    <h3 class="text-xs font-semibold text-neutral-400 mb-2">個人淨額明細 (+應收 / -應付)</h3> 
+                    <div id="person-net-list" class="grid grid-cols-2 gap-2 text-xs font-mono"></div> 
+                </div> 
+ 
+                <div class="pt-2 text-center border-t border-yellow-900/20"> 
+                    <span class="text-[9px] text-neutral-600 font-mono">GENERATED BY AUREUS SPLITWISE MATRIX</span> 
+                </div> 
+            </div> 
+ 
+            <!-- 操作按鈕區 --> 
+            <div class="space-y-2"> 
+                <button onclick="copySettlementText()" class="w-full py-2.5 text-xs rounded gold-button flex items-center justify-center gap-2"> 
+                    📋 一鍵複製文字結算報告 (適合貼到 LINE) 
+                </button> 
+                <button onclick="downloadCardImage()" class="w-full py-2 text-xs rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/10 flex items-center justify-center gap-2 transition-colors"> 
+                    🖼️ 下載結算卡片圖片 
+                </button> 
+            </div> 
+        </div> 
+ 
+    </main> 
+ 
+    <!-- Footer --> 
+    <footer class="w-full max-w-4xl pt-3 border-t border-yellow-900/30 text-center text-xs text-neutral-600"> 
+        AUREUS SPLIT MATRIX // 極簡轉帳最佳化算術 
+    </footer> 
+ 
+    <!-- JS Logic --> 
+    <script> 
+        let members = ["小明", "阿傑", "莉莉", "小華"]; 
+        let expenses = []; 
+        let currentCurrency = "NT$"; // 預設幣別
 
-                <div class="pt-2 text-center border-t border-yellow-900/20">
-                    <span class="text-[9px] text-neutral-600 font-mono">GENERATED BY AUREUS SPLITWISE MATRIX</span>
-                </div>
-            </div>
-
-            <!-- 操作按鈕區 -->
-            <div class="space-y-2">
-                <button onclick="copySettlementText()" class="w-full py-2.5 text-xs rounded gold-button flex items-center justify-center gap-2">
-                    📋 一鍵複製文字結算報告 (適合貼到 LINE)
-                </button>
-                <button onclick="downloadCardImage()" class="w-full py-2 text-xs rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/10 flex items-center justify-center gap-2">
-                    🖼️ 下載結算卡片圖片
-                </button>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="w-full max-w-4xl pt-3 border-t border-yellow-900/30 text-center text-xs text-neutral-600">
-        AUREUS SPLIT MATRIX // 極簡轉帳最佳化算術
-    </footer>
-
-    <!-- JS Logic -->
-    <script>
-        let members = ["小明", "阿傑", "莉莉", "小華"];
-        let expenses = [];
-
-        // 初始化
-        function init() {
-            renderMembers();
-            calculateSettlement();
+        // 防 XSS 輔助函式
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+            });
         }
 
-        function updateMembers() {
-            const val = document.getElementById('members-input').value;
-            const list = val.split(/[,，\s]+/).map(s => s.trim()).filter(Boolean);
-            if (list.length < 2) {
-                alert("請至少輸入 2 位成員！");
-                return;
-            }
-            members = [...new Set(list)];
-            expenses = []; // 重新設定成員時重置款項
-            renderMembers();
+        // 初始化 
+        function init() { 
+            renderMembers(); 
+            updateCurrencyUI();
+            calculateSettlement(); 
+        } 
+
+        function updateCurrency() {
+            const inputVal = document.getElementById('currency-input').value.trim();
+            currentCurrency = inputVal !== "" ? inputVal : "NT$";
+            updateCurrencyUI();
             renderExpenses();
             calculateSettlement();
         }
 
-        function renderMembers() {
-            const select = document.getElementById('payer-select');
-            const checkboxes = document.getElementById('sharers-checkboxes');
-            
-            select.innerHTML = members.map(m => `<option value="${m}">${m}</option>`).join('');
-            checkboxes.innerHTML = members.map(m => `
-                <label class="inline-flex items-center gap-1.5 cursor-pointer text-yellow-200">
-                    <input type="checkbox" value="${m}" checked class="accent-yellow-600"> ${m}
-                </label>
-            `).join('');
+        function updateCurrencyUI() {
+            document.getElementById('amount-label').innerText = `金額 (${currentCurrency})`;
         }
 
-        function addExpense() {
-            const title = document.getElementById('item-title').value.trim() || '未命名項目';
-            const payer = document.getElementById('payer-select').value;
-            const amount = parseFloat(document.getElementById('item-amount').value);
-            
-            const checkedBoxes = document.querySelectorAll('#sharers-checkboxes input:checked');
-            const sharers = Array.from(checkedBoxes).map(cb => cb.value);
-
-            if (isNaN(amount) || amount <= 0) {
-                alert("請輸入有效的消費金額！");
-                return;
-            }
-            if (sharers.length === 0) {
-                alert("至少需要選擇一位分攤人！");
-                return;
-            }
-
-            expenses.push({ id: Date.now(), title, payer, amount, sharers });
-            
-            // 清空輸入框
-            document.getElementById('item-title').value = '';
-            document.getElementById('item-amount').value = '';
-
-            renderExpenses();
-            calculateSettlement();
-        }
-
-        function removeExpense(id) {
-            expenses = expenses.filter(e => e.id !== id);
-            renderExpenses();
-            calculateSettlement();
-        }
-
-        function renderExpenses() {
-            const listEl = document.getElementById('expense-list');
-            if (expenses.length === 0) {
-                listEl.innerHTML = '<p class="text-neutral-600">尚未新增任何款項</p>';
-                return;
-            }
-
-            listEl.innerHTML = expenses.map(e => `
-                <div class="flex justify-between items-center p-2 bg-black/60 rounded border border-yellow-900/30">
-                    <div>
-                        <span class="font-bold text-yellow-200">${e.title}</span>
-                        <span class="text-[10px] text-neutral-400 block">${e.payer} 付款 $${e.amount} (${e.sharers.length}人分攤)</span>
-                    </div>
-                    <button onclick="removeExpense(${e.id})" class="text-red-500 hover:text-red-400 font-bold px-2">✕</button>
-                </div>
-            `).join('');
-        }
-
-        // 核心：最小流演算法 (Min-Flow Settlement Optimization)
-        function calculateSettlement() {
-            const netBalances = {};
-            members.forEach(m => netBalances[m] = 0);
-
-            let totalSpent = 0;
-            expenses.forEach(e => {
-                totalSpent += e.amount;
-                netBalances[e.payer] += e.amount;
-                const splitAmount = e.amount / e.sharers.length;
-                e.sharers.forEach(s => {
-                    netBalances[s] -= splitAmount;
-                });
-            });
-
-            document.getElementById('total-amount').innerText = `NT$ ${Math.round(totalSpent).toLocaleString()}`;
-
-            // 渲染個人淨額
-            const netListEl = document.getElementById('person-net-list');
-            netListEl.innerHTML = Object.entries(netBalances).map(([person, net]) => {
-                const rounded = Math.round(net);
-                const colorClass = rounded > 0 ? 'text-green-400' : (rounded < 0 ? 'text-red-400' : 'text-neutral-500');
-                const sign = rounded > 0 ? '+' : '';
-                return `
-                    <div class="flex justify-between p-1.5 bg-black/40 rounded border border-yellow-900/20">
-                        <span class="text-neutral-300">${person}</span>
-                        <span class="${colorClass} font-bold">${sign}$${rounded}</span>
-                    </div>
-                `;
-            }).join('');
-
-            // 雙指標最小流貪婪求解 (Min-Flow Algorithm)
-            const debtors = [];  // 欠錢者 (負值)
-            const creditors = []; // 應收錢者 (正值)
-
-            Object.entries(netBalances).forEach(([person, amount]) => {
-                const rounded = Math.round(amount);
-                if (rounded < -1) debtors.push({ person, amount: -rounded });
-                else if (rounded > 1) creditors.push({ person, amount: rounded });
-            });
-
-            const transactions = [];
-            let i = 0, j = 0;
-
-            while (i < debtors.length && j < creditors.length) {
-                const pay = Math.min(debtors[i].amount, creditors[j].amount);
-                
-                transactions.push({
-                    from: debtors[i].person,
-                    to: creditors[j].person,
-                    amount: Math.round(pay)
-                });
-
-                debtors[i].amount -= pay;
-                creditors[j].amount -= pay;
-
-                if (debtors[i].amount <= 1) i++;
-                if (creditors[j].amount <= 1) j++;
-            }
-
-            // 渲染最簡化轉帳結果
-            const resultsEl = document.getElementById('settlement-results');
-            if (transactions.length === 0) {
-                resultsEl.innerHTML = '<p class="text-xs text-green-400 font-bold">🎉 目前帳目完全平衡，無須任何人轉帳！</p>';
-            } else {
-                resultsEl.innerHTML = transactions.map(t => `
-                    <div class="flex justify-between items-center p-3 bg-yellow-950/20 border border-yellow-600/40 rounded-lg">
-                        <div class="flex items-center gap-2 text-xs">
-                            <span class="px-2 py-0.5 bg-red-950 text-red-300 border border-red-800/60 rounded font-bold">${t.from}</span>
-                            <span class="text-yellow-600">➔ 轉帳給 ➔</span>
-                            <span class="px-2 py-0.5 bg-green-950 text-green-300 border border-green-800/60 rounded font-bold">${t.to}</span>
-                        </div>
-                        <span class="font-mono text-sm font-extrabold text-yellow-300">NT$ ${t.amount}</span>
-                    </div>
-                `).join('');
-            }
-
-            window.currentTransactions = transactions;
-            window.totalSpent = totalSpent;
-        }
-
-        // 一鍵複製 LINE 格式文字
-        function copySettlementText() {
-            if (!window.currentTransactions || window.currentTransactions.length === 0) {
-                alert("目前沒有需要結算的轉帳項目！");
-                return;
-            }
-
-            let text = `💰【AUREUS 旅遊聚會結算報告】\n`;
-            text += `---------------------------\n`;
-            text += `💵 總消費金額：NT$ ${Math.round(window.totalSpent).toLocaleString()}\n\n`;
-            text += `✨ 最簡化最佳轉帳方案（僅需 ${window.currentTransactions.length} 次轉帳）：\n`;
-            
-            window.currentTransactions.forEach((t, index) => {
-                text += `${index + 1}. ${t.from} ➔ 轉給 ➔ ${t.to}：$${t.amount} 元\n`;
-            });
-            
-            text += `---------------------------\n`;
-            text += `請大家確認後儘快完成轉帳唷！🚀`;
-
-            navigator.clipboard.writeText(text);
-            alert("已複製結算文字報告！可直接貼到 LINE 群組囉！");
-        }
-
-        // 下載圖卡圖片
-        function downloadCardImage() {
-            const card = document.getElementById('settlement-card');
-            html2canvas(card, { backgroundColor: '#0b0b0d', scale: 2 }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `Aureus-Settlement-${new Date().toISOString().slice(0,10)}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-        }
-
-        function resetAll() {
-            if (confirm("確定要重置所有成員與消費紀錄嗎？")) {
-                expenses = [];
-                renderExpenses();
-                calculateSettlement();
-            }
-        }
-
-        init();
-    </script>
-</body>
+        function updateMembers() { 
+            const val = document.getElementById('members-input').value; 
+            const list = val.split(/[,，\s]+/).map(s => s.trim()).filter(Boolean); 
+            if (list.length < 2) { 
+                alert("請至少輸入 2 位成員！"); 
+                return; 
+            } 
+            members = [...new Set(list)]; 
+            expenses = []; // 重新設定成員時重置款項 
+            renderMembers(); 
+            renderExpenses(); 
+            calculateSettlement(); 
+        } 
+ 
+        function renderMembers() { 
+            const select = document.getElementById('payer-select'); 
+            const checkboxes = document.getElementById('sharers-checkboxes'); 
+             
+            select.innerHTML = members.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join(''); 
+            checkboxes.innerHTML = members.map(m => ` 
+                <label class="inline-flex items-center gap-1.5 cursor-pointer text-yellow-200"> 
+                    <input type="checkbox" value="${escapeHtml(m)}" checked class="accent-yellow-600"> ${escapeHtml(m)} 
+                </label> 
+            `).join(''); 
+        } 
+ 
+        function addExpense() { 
+            const title = document.getElementById('item-title').value.trim() || '未命名項目'; 
+            const payer = document.getElementById('payer-select').value; 
+            const amount = parseFloat(document.getElementById('item-amount').value); 
+             
+            const checkedBoxes = document.querySelectorAll('#sharers-checkboxes input:checked'); 
+            const sharers = Array.from(checkedBoxes).map(cb => cb.value); 
+ 
+            if (isNaN(amount) || amount <= 0) { 
+                alert("請輸入有效的消費金額！"); 
+                return; 
+            } 
+            if (sharers.length === 0) { 
+                alert("至少需要選擇一位分攤人！"); 
+                return; 
+            } 
+ 
+            expenses.push({ id: Date.now(), title, payer, amount, sharers }); 
+             
+            // 清空輸入框 
+            document.getElementById('item-title').value = ''; 
+            document.getElementById('item-amount').value = ''; 
+ 
+            renderExpenses(); 
+            calculateSettlement(); 
+        } 
+ 
+        function removeExpense(id) { 
+            expenses = expenses.filter(e => e.id !== id); 
+            renderExpenses(); 
+            calculateSettlement(); 
+        } 
+ 
+        function renderExpenses() { 
+            const listEl = document.getElementById('expense-list'); 
+            if (expenses.length === 0) { 
+                listEl.innerHTML = '<p class="text-neutral-600">尚未新增任何款項</p>'; 
+                return; 
+            } 
+ 
+            listEl.innerHTML = expenses.map(e => ` 
+                <div class="flex justify-between items-center p-2 bg-black/60 rounded border border-yellow-900/30"> 
+                    <div> 
+                        <span class="font-bold text-yellow-200">${escapeHtml(e.title)}</span> 
+                        <span class="text-[10px] text-neutral-400 block">${escapeHtml(e.payer)} 付款 ${escapeHtml(currentCurrency)} ${e.amount.toLocaleString()} (${e.sharers.length}人分攤)</span> 
+                    </div> 
+                    <button onclick="removeExpense(${e.id})" class="text-red-500 hover:text-red-400 font-bold px-2">✕</button> 
+                </div> 
+            `).join(''); 
+        } 
+ 
+        // 核心：最小流演算法 (Min-Flow Settlement Optimization) 
+        function calculateSettlement() { 
+            const netBalances = {}; 
+            members.forEach(m => netBalances[m] = 0); 
+ 
+            let totalSpent = 0; 
+            expenses.forEach(e => { 
+                totalSpent += e.amount; 
+                netBalances[e.payer] += e.amount; 
+                const splitAmount = e.amount / e.sharers.length; 
+                e.sharers.forEach(s => { 
+                    netBalances[s] -= splitAmount; 
+                }); 
+            }); 
+ 
+            document.getElementById('total-amount').innerText = `${currentCurrency} ${Math.round(totalSpent).toLocaleString()}`; 
+ 
+            // 渲染個人淨額 
+            const netListEl = document.getElementById('person-net-list'); 
+            netListEl.innerHTML = Object.entries(netBalances).map(([person, net]) => { 
+                const rounded = Math.round(net); 
+                const colorClass = rounded > 0 ? 'text-green-400' : (rounded < 0 ? 'text-red-400' : 'text-neutral-500'); 
+                const sign = rounded > 0 ? '+' : ''; 
+                return ` 
+                    <div class="flex justify-between p-1.5 bg-black/40 rounded border border-yellow-900/20"> 
+                        <span class="text-neutral-300">${escapeHtml(person)}</span> 
+                        <span class="${colorClass} font-bold">${sign}${rounded.toLocaleString()}</span> 
+                    </div> 
+                `; 
+            }).join(''); 
+ 
+            // 雙指標最小流貪婪求解 (Min-Flow Algorithm) 
+            const debtors = [];  // 欠錢者 (負值) 
+            const creditors = []; // 應收錢者 (正值) 
+ 
+            Object.entries(netBalances).forEach(([person, amount]) => { 
+                const rounded = Math.round(amount); 
+                if (rounded < -1) debtors.push({ person, amount: -rounded }); 
+                else if (rounded > 1) creditors.push({ person, amount: rounded }); 
+            }); 
+ 
+            const transactions = []; 
+            let i = 0, j = 0; 
+ 
+            while (i < debtors.length && j < creditors.length) { 
+                const pay = Math.min(debtors[i].amount, creditors[j].amount); 
+                 
+                transactions.push({ 
+                    from: debtors[i].person, 
+                    to: creditors[j].person, 
+                    amount: Math.round(pay) 
+                }); 
+ 
+                debtors[i].amount -= pay; 
+                creditors[j].amount -= pay; 
+ 
+                if (debtors[i].amount <= 1) i++; 
+                if (creditors[j].amount <= 1) j++; 
+            } 
+ 
+            // 渲染最簡化轉帳結果 
+            const resultsEl = document.getElementById('settlement-results'); 
+            if (transactions.length === 0) { 
+                resultsEl.innerHTML = '<p class="text-xs text-green-400 font-bold">🎉 目前帳目完全平衡，無須任何人轉帳！</p>'; 
+            } else { 
+                resultsEl.innerHTML = transactions.map(t => ` 
+                    <div class="flex justify-between items-center p-3 bg-yellow-950/20 border border-yellow-600/40 rounded-lg"> 
+                        <div class="flex items-center gap-2 text-xs"> 
+                            <span class="px-2 py-0.5 bg-red-950 text-red-300 border border-red-800/60 rounded font-bold">${escapeHtml(t.from)}</span> 
+                            <span class="text-yellow-600">➔ 轉帳給 ➔</span> 
+                            <span class="px-2 py-0.5 bg-green-950 text-green-300 border border-green-800/60 rounded font-bold">${escapeHtml(t.to)}</span> 
+                        </div> 
+                        <span class="font-mono text-sm font-extrabold text-yellow-300">${escapeHtml(currentCurrency)} ${t.amount.toLocaleString()}</span> 
+                    </div> 
+                `).join(''); 
+            } 
+ 
+            window.currentTransactions = transactions; 
+            window.totalSpent = totalSpent; 
+        } 
+ 
+        // 一鍵複製 LINE 格式文字 
+        function copySettlementText() { 
+            if (!window.currentTransactions || window.currentTransactions.length === 0) { 
+                alert("目前沒有需要結算的轉帳項目！"); 
+                return; 
+            } 
+ 
+            let text = `💰【AUREUS 旅遊聚會結算報告】\n`; 
+            text += `---------------------------\n`; 
+            text += `💵 總消費金額：${currentCurrency} ${Math.round(window.totalSpent).toLocaleString()}\n\n`; 
+            text += `✨ 最簡化最佳轉帳方案（僅需 ${window.currentTransactions.length} 次轉帳）：\n`; 
+             
+            window.currentTransactions.forEach((t, index) => { 
+                text += `${index + 1}. ${t.from} ➔ 轉給 ➔ ${t.to}：${currentCurrency} ${t.amount.toLocaleString()}\n`; 
+            }); 
+             
+            text += `---------------------------\n`; 
+            text += `請大家確認後儘快完成轉帳唷！🚀`; 
+ 
+            navigator.clipboard.writeText(text); 
+            alert("已複製結算文字報告！可直接貼到 LINE 群組囉！"); 
+        } 
+ 
+        // 下載圖卡圖片 
+        function downloadCardImage() { 
+            const card = document.getElementById('settlement-card'); 
+            html2canvas(card, { backgroundColor: '#0b0b0d', scale: 2 }).then(canvas => { 
+                const link = document.createElement('a'); 
+                link.download = `Aureus-Settlement-${new Date().toISOString().slice(0,10)}.png`; 
+                link.href = canvas.toDataURL(); 
+                link.click(); 
+            }); 
+        } 
+ 
+        function resetAll() { 
+            if (confirm("確定要重置所有成員與消費紀錄嗎？")) { 
+                expenses = []; 
+                document.getElementById('currency-input').value = 'NT$';
+                currentCurrency = 'NT$';
+                updateCurrencyUI();
+                renderExpenses(); 
+                calculateSettlement(); 
+            } 
+        } 
+ 
+        init(); 
+    </script> 
+</body> 
 </html>
