@@ -2,223 +2,64 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUREUS // 賽博無痛拆帳與最佳化轉帳圖譜</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<title>AUREUS // SPLIT MATRIX</title>
 
-    <style>
-        body {
-            background-color: #0b0b0d;
-            color: #e5e7eb;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-        .gold-border {
-            border: 1px solid rgba(212, 175, 55, 0.4);
-        }
+<style>
+body {
+    background-color:#0b0b0d;
+    color:#e5e7eb;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+}
 
-        .gold-glow {
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.12);
-        }
+.gold-border {
+    border:1px solid rgba(212,175,55,.4);
+}
 
-        .gold-button {
-            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
-            color: #000;
-            font-weight: bold;
-            transition: all 0.2s ease;
-        }
+.gold-glow {
+    box-shadow:0 0 20px rgba(212,175,55,.12);
+}
 
-        .gold-button:hover {
-            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 100%);
-            box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
-        }
+.gold-button {
+    background:linear-gradient(135deg,#d4af37 0%,#aa7c11 100%);
+    color:#000;
+    font-weight:bold;
+    transition:.2s;
+}
 
-        .card-bg {
-            background: linear-gradient(145deg, #141419 0%, #08080a 100%);
-        }
-    </style>
+.gold-button:hover {
+    background:linear-gradient(135deg,#f3e5ab 0%,#d4af37 100%);
+    box-shadow:0 0 12px rgba(212,175,55,.4);
+}
+
+.card-bg {
+    background:linear-gradient(145deg,#141419 0%,#08080a 100%);
+}
+
+.person-row {
+    display:grid;
+    grid-template-columns:1fr 100px;
+    gap:8px;
+    align-items:center;
+}
+
+@media(max-width:640px){
+    .person-row {
+        grid-template-columns:1fr 90px;
+    }
+}
+</style>
 </head>
 
-<body class="min-h-screen flex flex-col items-center justify-between p-4 md:p-8">
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
 
-    <!-- Header -->
-    <header class="w-full max-w-4xl flex justify-between items-center pb-4 border-b border-yellow-900/30">
-        <div>
-            <h1 class="text-2xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-700">
-                AUREUS // SPLIT MATRIX
-            </h1>
+<header class="w-full max-w-5xl flex justify-between items-center pb-4 border-b border-yellow-900/30">
 
-            <p class="text-xs text-yellow-600/80">
-                旅遊聚會無痛拆帳 // 多幣別最佳化轉帳圖譜
-            </p>
-        </div>
-
-        <button
-            onclick="resetAll()"
-            class="text-xs px-3 py-1.5 rounded border border-red-900/50 text-red-400 hover:bg-red-950/30 transition-colors"
-        >
-            重置所有紀錄
-        </button>
-    </header>
-
-
-    <!-- Main -->
-    <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6 my-6 flex-grow">
-
-        <!-- 左側 -->
-        <div class="space-y-6">
-
-            <!-- 成員與幣別 -->
-            <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-4">
-
-                <div>
-                    <h2 class="text-sm font-bold text-yellow-400 mb-2">
-                        1. 參與成員
-                    </h2>
-
-                    <div class="flex gap-2">
-                        <input
-                            type="text"
-                            id="members-input"
-                            class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500"
-                            placeholder="例如：小明, 阿傑, 莉莉"
-                        >
-
-                        <button
-                            onclick="updateMembers()"
-                            class="px-4 text-xs rounded gold-button shrink-0"
-                        >
-                            更新成員
-                        </button>
-                    </div>
-                </div>
-
-
-                <!-- 幣別 -->
-                <div class="border-t border-yellow-900/30 pt-3">
-
-                    <label class="text-xs text-neutral-400 block mb-1">
-                        本次新增款項使用幣別
-                    </label>
-
-                    <div class="flex gap-2">
-
-                        <input
-                            type="text"
-                            id="currency-input"
-                            value="NT$"
-                            class="w-full p-2 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500"
-                            placeholder="例如：NT$、JPY、USD"
-                        >
-
-                        <button
-                            onclick="updateCurrency()"
-                            class="px-3 text-xs rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/10 shrink-0"
-                        >
-                            變更幣別
-                        </button>
-
-                    </div>
-
-                    <p class="text-[10px] text-neutral-600 mt-2">
-                        ※ 變更後只影響「下一筆新增款項」，歷史紀錄幣別不會改變。
-                    </p>
-
-                </div>
-
-            </div>
-
-
-            <!-- 新增消費 -->
-            <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-3">
-
-                <h2 class="text-sm font-bold text-yellow-400">
-                    2. 新增款項紀錄
-                </h2>
-
-                <div>
-                    <label class="text-xs text-neutral-400 block mb-1">
-                        消費項目描述
-                    </label>
-
-                    <input
-                        type="text"
-                        id="item-title"
-                        class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100 focus:outline-none focus:border-yellow-500"
-                        placeholder="例如：吃飯、包車費、晚餐酒吧"
-                    >
-                </div>
-
-
-                <div class="grid grid-cols-2 gap-3">
-
-                    <div>
-                        <label class="text-xs text-neutral-400 block mb-1">
-                            先墊錢的人
-                        </label>
-
-                        <select
-                            id="payer-select"
-                            class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-200 focus:outline-none focus:border-yellow-500"
-                        ></select>
-                    </div>
-
-
-                    <div>
-                        <label
-                            id="amount-label"
-                            class="text-xs text-neutral-400 block mb-1"
-                        >
-                            金額 (NT$)
-                        </label>
-
-                        <input
-                            type="number"
-                            id="item-amount"
-                            step="any"
-                            min="0"
-                            class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100 focus:outline-none focus:border-yellow-500"
-                            placeholder="0"
-                        >
-                    </div>
-
-                </div>
-
-
-                <div>
-                    <label class="text-xs text-neutral-400 block mb-1">
-                        誰需要一起分攤這筆錢？
-                    </label>
-
-                    <div
-                        id="sharers-checkboxes"
-                        class="flex flex-wrap gap-3 p-2 bg-black/50 border border-yellow-900/30 rounded text-xs"
-                    ></div>
-                </div>
-
-
-                <button
-                    onclick="addExpense()"
-                    class="w-full py-2.5 text-xs rounded gold-button mt-2"
-                >
-                    + 新增此筆款項
-                </button>
-
-            </div>
-
-
-            <!-- 消費清單 -->
-            <div class="card-bg p-4 rounded-xl gold-border">
-
-                <div class="flex justify-between items-center mb-2">
-
-                    <h3 class="text-xs font-semibold text-neutral-400">
-                        已輸入款項列表
-                    </h3>
-
-                    <span
-                        id="e
+    <div>
+        <h1 class="tex
 ```
