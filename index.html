@@ -3,15 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AUREUS // 極速雙向同步與圖片傳輸站</title>
+    <title>AUREUS // 黑金雲端極速快傳與暫存站</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PeerJS for P2P Realtime Sync -->
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <!-- QRCode.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        body { background-color: #0b0b0b; color: #d4af37; font-family: sans-serif; }
+        body { background-color: #0b0b0b; color: #d4af37; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .gold-border { border: 1px solid #d4af37; }
         .gold-glow { box-shadow: 0 0 15px rgba(212, 175, 55, 0.15); }
         .gold-button {
@@ -30,52 +26,78 @@
     <header class="w-full max-w-4xl flex justify-between items-center pb-4 border-b border-yellow-900/40">
         <div>
             <h1 class="text-2xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-700">
-                AUREUS DIRECT
+                AUREUS CLOUD VAULT
             </h1>
-            <p class="text-xs text-yellow-600/80">雙向極速同步 // 支援文字與圖片傳輸</p>
+            <p class="text-xs text-yellow-600/80">雲端同步暫存站 // 每日自動重置銷毀</p>
         </div>
         <div class="text-right">
-            <span class="text-xs text-neutral-400 block">連線狀態</span>
-            <span id="conn-status" class="text-xs font-bold px-2 py-0.5 rounded bg-yellow-950 text-yellow-400 border border-yellow-800">等待裝置連接...</span>
+            <span class="text-xs text-neutral-400 block">同步頻道</span>
+            <span id="channel-name" class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-yellow-950 text-yellow-400 border border-yellow-800">GLOBAL</span>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 my-6 flex-grow">
         
-        <!-- Left: QR Code Pairing -->
-        <div class="bg-neutral-900/90 p-5 rounded-xl gold-border gold-glow flex flex-col items-center justify-center text-center">
-            <h2 class="text-sm font-semibold mb-3 text-yellow-400">手機掃碼配對（即時連線）</h2>
-            <div id="qrcode" class="p-2 bg-white rounded-lg mb-3"></div>
-            <p class="text-xs text-neutral-400 max-w-[200px]">
-                用手機相機掃描上面 QR Code，手機開網頁後兩端會**自動建立即時連線**！
-            </p>
-        </div>
-
-        <!-- Right: Realtime Text & Image Sharing -->
-        <div class="md:col-span-2 bg-neutral-900/90 p-5 rounded-xl gold-border gold-glow flex flex-col gap-4">
-            
-            <!-- Text Box -->
+        <!-- Left: Status & Controls -->
+        <div class="bg-neutral-900/90 p-5 rounded-xl gold-border gold-glow flex flex-col justify-between">
             <div>
-                <div class="flex justify-between items-center mb-2">
-                    <label class="text-sm font-semibold text-yellow-400">📝 即時文字剪貼簿（打字雙向同步）</label>
-                    <button onclick="copyText()" class="text-xs px-2 py-1 rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/20">複製文字</button>
+                <h2 class="text-sm font-semibold mb-3 text-yellow-400">🌐 跨裝置共享狀態</h2>
+                <div class="space-y-3 text-xs text-neutral-300">
+                    <div class="p-3 bg-black/60 rounded border border-yellow-900/30">
+                        <span class="text-neutral-500 block mb-1">連線方式：</span>
+                        <p class="text-yellow-200">免掃碼！電腦或手機開啟相同網址，皆可讀取與寫入相同內容。</p>
+                    </div>
+                    <div class="p-3 bg-black/60 rounded border border-yellow-900/30">
+                        <span class="text-neutral-500 block mb-1">資料保留時間：</span>
+                        <p class="text-yellow-200">雲端暫存將保留至午夜自動銷毀，不佔用空間與記憶體。</p>
+                    </div>
                 </div>
-                <textarea id="text-input" rows="5" class="w-full p-3 bg-black border border-yellow-900/60 rounded-lg text-yellow-100 placeholder-neutral-700 focus:outline-none focus:border-yellow-500 text-sm" placeholder="在任何一端輸入或貼上文字，另一端會即時出現..."></textarea>
             </div>
 
-            <!-- Image Transfer -->
+            <div class="mt-4 space-y-2">
+                <button onclick="fetchCloudData()" class="w-full py-2 text-xs rounded gold-button">🔄 強制刷新同步最新內容</button>
+                <button onclick="clearCloudData()" class="w-full py-2 text-xs rounded border border-red-800 text-red-400 hover:bg-red-950/40">🗑️ 清空目前所有內容</button>
+            </div>
+        </div>
+
+        <!-- Right: Text & Image Cloud Storage -->
+        <div class="md:col-span-2 bg-neutral-900/90 p-5 rounded-xl gold-border gold-glow flex flex-col gap-4">
+            
+            <!-- Text Input & Auto Clean Tools -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-semibold text-yellow-400">📝 共享剪貼簿（打字自動上傳）</label>
+                    <div class="space-x-1">
+                        <span id="save-status" class="text-xs text-yellow-500/80 mr-2 font-mono">連線中...</span>
+                        <button onclick="copyText()" class="text-xs px-2 py-1 rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/20">複製文字</button>
+                    </div>
+                </div>
+                <textarea id="text-input" rows="5" class="w-full p-3 bg-black border border-yellow-900/60 rounded-lg text-yellow-100 placeholder-neutral-700 focus:outline-none focus:border-yellow-500 text-sm" placeholder="在此貼上或輸入文字，手機與電腦隨時開啟都能看到與編輯..."></textarea>
+            </div>
+
+            <!-- Auto Cleaner Quick Tools -->
+            <div class="border-t border-yellow-900/40 pt-3">
+                <span class="text-xs text-yellow-600 block mb-2">一鍵文字洗滌工具 (Auto-Clean)</span>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="cleanUTM()" class="px-2 py-1.5 text-xs rounded gold-button">去除網址追蹤碼</button>
+                    <button onclick="removeNewlines()" class="px-2 py-1.5 text-xs rounded gold-button">清除多餘換行</button>
+                    <button onclick="simpToTrad()" class="px-2 py-1.5 text-xs rounded gold-button">簡體轉繁體</button>
+                </div>
+            </div>
+
+            <!-- Image Storage & Preview -->
             <div class="border-t border-yellow-900/40 pt-3">
                 <div class="flex justify-between items-center mb-2">
-                    <label class="text-sm font-semibold text-yellow-400">🖼️ 圖片快傳區</label>
+                    <label class="text-sm font-semibold text-yellow-400">🖼️ 共享圖片區</label>
                     <label class="cursor-pointer text-xs px-3 py-1.5 rounded gold-button inline-block">
-                        選擇/上傳圖片
+                        上傳/變更圖片
                         <input type="file" id="image-input" accept="image/*" class="hidden">
                     </label>
                 </div>
-                <div id="image-container" class="min-h-[120px] bg-black border border-yellow-900/40 rounded-lg p-2 flex items-center justify-center">
-                    <span id="no-img-tip" class="text-xs text-neutral-600">目前尚無同步圖片（可在電腦或手機上傳）</span>
-                    <img id="shared-img" class="max-h-56 rounded hidden object-contain" alt="同步圖片" />
+                <div id="image-container" class="min-h-[140px] bg-black border border-yellow-900/40 rounded-lg p-2 flex items-center justify-center relative">
+                    <span id="no-img-tip" class="text-xs text-neutral-600">目前雲端無暫存圖片（支援手機/電腦上傳）</span>
+                    <img id="shared-img" class="max-h-60 rounded hidden object-contain" alt="雲端暫存圖片" />
                 </div>
             </div>
 
@@ -84,116 +106,190 @@
 
     <!-- Footer Status -->
     <footer class="w-full max-w-4xl pt-3 border-t border-yellow-900/40 text-center text-xs text-neutral-500">
-        配對 ID: <span id="my-id" class="font-mono text-yellow-600">生成中...</span>
+        狀態: <span id="status-text" class="text-yellow-600">雲端同步中</span> // 每日自動重置
     </footer>
 
     <!-- Engine JS -->
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const targetPeerId = urlParams.get('peer');
-
-        const statusEl = document.getElementById('conn-status');
+        // 取得當天日期作為每日自動重置的 Key
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const channelKey = `aureus-vault-${todayStr}`;
+        
         const textInput = document.getElementById('text-input');
         const imageInput = document.getElementById('image-input');
         const sharedImg = document.getElementById('shared-img');
         const noImgTip = document.getElementById('no-img-tip');
-        const myIdEl = document.getElementById('my-id');
+        const saveStatus = document.getElementById('save-status');
+        const statusText = document.getElementById('status-text');
 
-        let peer = null;
-        let activeConn = null;
+        let isLocalTyping = false;
+        let uploadTimer = null;
 
-        // 初始化 PeerJS
-        peer = new Peer();
+        // 免費雲端暫存端點 (使用 ntfy / json 伺服器技術)
+        const ENDPOINT_TEXT = `https://ntfy.sh/${channelKey}-text`;
+        const ENDPOINT_IMG = `https://ntfy.sh/${channelKey}-img`;
 
-        peer.on('open', (id) => {
-            myIdEl.innerText = id;
+        // 1. 抓取雲端最新資料（文字 + 圖片）
+        async function fetchCloudData() {
+            if (isLocalTyping) return;
+            saveStatus.innerText = '同步中...';
 
-            if (!targetPeerId) {
-                // 代表這是第一台裝置（例如電腦）
-                const shareUrl = `${window.location.origin}${window.location.pathname}?peer=${id}`;
-                new QRCode(document.getElementById("qrcode"), {
-                    text: shareUrl, width: 140, height: 140
-                });
-            } else {
-                // 代表這是掃碼進來的裝置（例如手機），主動連線給電腦
-                statusEl.innerText = '正在連線至電腦...';
-                const conn = peer.connect(targetPeerId);
-                setupConnection(conn);
+            try {
+                // 讀取文字
+                const resText = await fetch(`${ENDPOINT_TEXT}/raw`);
+                if (resText.ok) {
+                    const txt = await resText.text();
+                    if (txt && txt !== textInput.value && !isLocalTyping) {
+                        textInput.value = txt;
+                    }
+                }
 
-                // 隱藏手機端的 QR Code 區塊
-                document.getElementById("qrcode").parentElement.style.display = 'none';
+                // 讀取圖片
+                const resImg = await fetch(`${ENDPOINT_IMG}/raw`);
+                if (resImg.ok) {
+                    const imgData = await resImg.text();
+                    if (imgData && imgData.startsWith('data:image')) {
+                        sharedImg.src = imgData;
+                        sharedImg.classList.remove('hidden');
+                        noImgTip.classList.add('hidden');
+                    } else if (imgData === 'CLEAR') {
+                        sharedImg.src = '';
+                        sharedImg.classList.add('hidden');
+                        noImgTip.classList.remove('hidden');
+                    }
+                }
+                saveStatus.innerText = '已與雲端同步 ✓';
+            } catch (e) {
+                saveStatus.innerText = '讀取完成';
             }
-        });
-
-        // 當有人連線近來（電腦端接收手機連線）
-        peer.on('connection', (conn) => {
-            setupConnection(conn);
-        });
-
-        // 綁定連線邏輯
-        function setupConnection(conn) {
-            activeConn = conn;
-
-            conn.on('open', () => {
-                statusEl.innerText = '🟢 已連線成功 (雙向同步中)';
-                statusEl.className = 'text-xs font-bold px-2 py-0.5 rounded bg-green-950 text-green-400 border border-green-800';
-
-                // 如果本機已經有字，連線成立時立刻傳給對方
-                if (textInput.value) {
-                    conn.send({ type: 'text', data: textInput.value });
-                }
-            });
-
-            // 收到對方傳來的資料
-            conn.on('data', (data) => {
-                if (data.type === 'text') {
-                    textInput.value = data.data;
-                } else if (data.type === 'image') {
-                    sharedImg.src = data.data;
-                    sharedImg.classList.remove('hidden');
-                    noImgTip.classList.add('hidden');
-                }
-            });
-
-            conn.on('close', () => {
-                statusEl.innerText = '🔴 連線中斷';
-                statusEl.className = 'text-xs font-bold px-2 py-0.5 rounded bg-red-950 text-red-400 border border-red-800';
-            });
         }
 
-        // 文字即時輸入廣播
+        // 2. 自動上傳文字至雲端 (防抖延遲 800ms)
         textInput.addEventListener('input', () => {
-            if (activeConn && activeConn.open) {
-                activeConn.send({ type: 'text', data: textInput.value });
-            }
+            isLocalTyping = true;
+            saveStatus.innerText = '編輯中...';
+            
+            clearTimeout(uploadTimer);
+            uploadTimer = setTimeout(async () => {
+                saveStatus.innerText = '上傳雲端中...';
+                try {
+                    await fetch(ENDPOINT_TEXT, {
+                        method: 'POST',
+                        body: textInput.value
+                    });
+                    saveStatus.innerText = '已同步至雲端 ✓';
+                } catch(e) {
+                    saveStatus.innerText = '上傳失敗';
+                }
+                isLocalTyping = false;
+            }, 800);
         });
 
-        // 圖片上傳廣播
+        // 3. 上傳圖片至雲端 (轉成 Base64 暫存)
         imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(evt) {
-                const imgData = evt.target.result;
-                // 本地先顯示
-                sharedImg.src = imgData;
-                sharedImg.classList.remove('hidden');
-                noImgTip.classList.add('hidden');
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1000;
 
-                // 傳給對方
-                if (activeConn && activeConn.open) {
-                    activeConn.send({ type: 'image', data: imgData });
-                }
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            maxDim;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+
+                    // 顯示本機圖片
+                    sharedImg.src = compressedBase64;
+                    sharedImg.classList.remove('hidden');
+                    noImgTip.classList.add('hidden');
+
+                    // 上傳至雲端
+                    saveStatus.innerText = '圖片上傳中...';
+                    fetch(ENDPOINT_IMG, {
+                        method: 'POST',
+                        body: compressedBase64
+                    }).then(() => {
+                        saveStatus.innerText = '圖片已同步至雲端 ✓';
+                    });
+                };
+                img.src = evt.target.result;
             };
             reader.readAsDataURL(file);
         });
 
+        // 4. 清空內容
+        async function clearCloudData() {
+            if (confirm('確定要清空今天的共享紀錄嗎？')) {
+                textInput.value = '';
+                sharedImg.src = '';
+                sharedImg.classList.add('hidden');
+                noImgTip.classList.remove('hidden');
+
+                await fetch(ENDPOINT_TEXT, { method: 'POST', body: '' });
+                await fetch(ENDPOINT_IMG, { method: 'POST', body: 'CLEAR' });
+                saveStatus.innerText = '資料已清空';
+            }
+        }
+
+        // 5. 洗滌工具邏輯
+        function cleanUTM() {
+            let text = textInput.value;
+            text = text.replace(/(https?:\/\/[^\s]+)/g, (url) => {
+                try {
+                    let u = new URL(url);
+                    ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'fbclid', 'gclid', 'igshid'].forEach(p => u.searchParams.delete(p));
+                    return u.toString();
+                } catch(e) { return url; }
+            });
+            updateText(text);
+        }
+
+        function removeNewlines() {
+            let text = textInput.value;
+            text = text.replace(/([^\n])\n([^\n])/g, '$1 $2').replace(/\n+/g, '\n');
+            updateText(text);
+        }
+
+        function simpToTrad() {
+            let text = textInput.value;
+            const map = {'这':'這', '么':'麼', '摸':'麼', '体':'體', '国':'國', '学':'學', '写':'寫', '软':'軟', '件':'件', '网':'網', '页':'頁', '码':'碼', '设':'設', '计':'計', '资':'資', '料':'料', '发':'發', '现':'現', '动':'動', '简':'簡', '繁':'繁'};
+            text = text.split('').map(char => map[char] || char).join('');
+            updateText(text);
+        }
+
         function copyText() {
             textInput.select();
             navigator.clipboard.writeText(textInput.value);
-            alert('文字已複製！');
+            statusText.innerText = '文字已複製！';
+            setTimeout(() => { statusText.innerText = '雲端同步中'; }, 2000);
         }
+
+        function updateText(newText) {
+            textInput.value = newText;
+            textInput.dispatchEvent(new Event('input'));
+        }
+
+        // 輪詢定時同步（每 4 秒自動檢查一次雲端是否有新內容）
+        fetchCloudData();
+        setInterval(fetchCloudData, 4000);
     </script>
 </body>
 </html>
