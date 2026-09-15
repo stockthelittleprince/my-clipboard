@@ -1,65 +1,3113 @@
-```html
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUREUS // SPLIT MATRIX</title>
 
-<title>AUREUS // SPLIT MATRIX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            background-color: #0b0b0d;
+            color: #e5e7eb;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
 
-<style>
-body {
-    background-color:#0b0b0d;
-    color:#e5e7eb;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-}
+        .gold-border {
+            border: 1px solid rgba(212, 175, 55, 0.4);
+        }
 
-.gold-border {
-    border:1px solid rgba(212,175,55,.4);
-}
+        .gold-glow {
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.12);
+        }
 
-.gold-glow {
-    box-shadow:0 0 20px rgba(212,175,55,.12);
-}
+        .gold-button {
+            background: linear-gradient(135deg, #d4af37 0%, #aa7c11 100%);
+            color: #000;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
 
-.gold-button {
-    background:linear-gradient(135deg,#d4af37 0%,#aa7c11 100%);
-    color:#000;
-    font-weight:bold;
-    transition:.2s;
-}
+        .gold-button:hover {
+            background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 100%);
+            box-shadow: 0 0 12px rgba(212, 175, 55, 0.4);
+        }
 
-.gold-button:hover {
-    background:linear-gradient(135deg,#f3e5ab 0%,#d4af37 100%);
-    box-shadow:0 0 12px rgba(212,175,55,.4);
-}
+        .card-bg {
+            background: linear-gradient(145deg, #141419 0%, #08080a 100%);
+        }
 
-.card-bg {
-    background:linear-gradient(145deg,#141419 0%,#08080a 100%);
-}
+        .mini-button {
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            color: #d4af37;
+            background: rgba(212, 175, 55, 0.05);
+            transition: all .15s ease;
+        }
 
-.person-row {
-    display:grid;
-    grid-template-columns:1fr 100px;
-    gap:8px;
-    align-items:center;
-}
+        .mini-button:hover {
+            background: rgba(212, 175, 55, 0.15);
+        }
 
-@media(max-width:640px){
-    .person-row {
-        grid-template-columns:1fr 90px;
-    }
-}
-</style>
+        input, select {
+            color-scheme: dark;
+        }
+
+        .settled {
+            opacity: .55;
+        }
+    </style>
 </head>
 
 <body class="min-h-screen flex flex-col items-center p-4 md:p-8">
 
-<header class="w-full max-w-5xl flex justify-between items-center pb-4 border-b border-yellow-900/30">
+<header class="w-full max-w-6xl flex justify-between items-center pb-4 border-b border-yellow-900/30">
 
     <div>
-        <h1 class="tex
-```
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-yellow-500 to-yellow-700">
+            AUREUS // SPLIT MATRIX
+        </h1>
+
+        <p class="text-xs text-yellow-600/80 mt-1">
+            旅遊聚會無痛拆帳 // 最少轉帳次數最佳化
+        </p>
+    </div>
+
+    <button
+        onclick="resetAll()"
+        class="text-xs px-3 py-1.5 rounded border border-red-900/50 text-red-400 hover:bg-red-950/30">
+        重置所有紀錄
+    </button>
+
+</header>
+
+<main class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 my-6">
+
+<!-- ================= LEFT ================= -->
+
+<div class="space-y-6">
+
+    <!-- 旅遊名稱 -->
+    <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-3">
+
+        <h2 class="text-sm font-bold text-yellow-400">
+            AUREUS PROJECT
+        </h2>
+
+        <input
+            type="text"
+            id="trip-name"
+            onchange="saveSettings()"
+            class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100"
+            placeholder="例如：沖繩五日遊">
+
+    </div>
+
+
+    <!-- 成員與我的身份 -->
+
+    <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-4">
+
+        <div>
+            <h2 class="text-sm font-bold text-yellow-400 mb-2">
+                1. 參與成員
+            </h2>
+
+            <div class="flex gap-2">
+
+                <input
+                    type="text"
+                    id="members-input"
+                    class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100"
+                    placeholder="例如：小明, 阿傑, 莉莉, 小華">
+
+                <button
+                    onclick="updateMembers()"
+                    class="px-4 text-xs rounded gold-button shrink-0">
+                    更新成員
+                </button>
+
+            </div>
+        </div>
+
+
+        <div class="border-t border-yellow-900/30 pt-3">
+
+            <label class="text-xs text-neutral-400 block mb-1">
+                我是誰？
+            </label>
+
+            <select
+                id="self-select"
+                onchange="saveSettings(); renderMyAccount();"
+                class="w-full p-2 bg-black border border-yellow-900/50 rounded text-sm text-yellow-200">
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <!-- 幣別 -->
+
+    <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-3">
+
+        <h2 class="text-sm font-bold text-yellow-400">
+            2. 本次新增款項幣別
+        </h2>
+
+        <div class="flex gap-2">
+
+            <input
+                type="text"
+                id="currency-input"
+                class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100"
+                value="NT$"
+                placeholder="例如：NT$, JPY, USD">
+
+            <button
+                onclick="updateCurrency()"
+                class="px-4 text-xs rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/10">
+                變更幣別
+            </button>
+
+        </div>
+
+        <p class="text-[10px] text-neutral-500">
+            ⚠️ 變更幣別只會影響「下一筆新增的消費」，之前紀錄的幣別不會改變。
+        </p>
+
+    </div>
+
+
+    <!-- 新增消費 -->
+
+    <div class="card-bg p-5 rounded-xl gold-border gold-glow space-y-4">
+
+        <h2 class="text-sm font-bold text-yellow-400">
+            3. 新增款項紀錄
+        </h2>
+
+
+        <!-- 日期 -->
+
+        <div>
+            <label class="text-xs text-neutral-400 block mb-1">
+                消費日期
+            </label>
+
+            <input
+                type="date"
+                id="item-date"
+                class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm">
+        </div>
+
+
+        <!-- 項目 -->
+
+        <div>
+            <label class="text-xs text-neutral-400 block mb-1">
+                消費項目描述
+            </label>
+
+            <input
+                type="text"
+                id="item-title"
+                class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100"
+                placeholder="例如：國際通晚餐">
+        </div>
+
+
+        <!-- 分類 -->
+
+        <div>
+
+            <label class="text-xs text-neutral-400 block mb-1">
+                消費分類
+            </label>
+
+            <select
+                id="item-category"
+                class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm">
+
+                <option value="🍜 飲食">🍜 飲食</option>
+                <option value="🚕 交通">🚕 交通</option>
+                <option value="🏨 住宿">🏨 住宿</option>
+                <option value="🎫 門票">🎫 門票</option>
+                <option value="🛍️ 購物">🛍️ 購物</option>
+                <option value="🍺 娛樂">🍺 娛樂</option>
+                <option value="💰 其他">💰 其他</option>
+
+            </select>
+
+        </div>
+
+
+        <!-- 付款人 -->
+
+        <div>
+
+            <label class="text-xs text-neutral-400 block mb-1">
+                誰付錢？
+            </label>
+
+            <select
+                id="payer-select"
+                onchange="selectPayer()"
+                class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-200">
+            </select>
+
+        </div>
+
+
+        <!-- 金額 -->
+
+        <div>
+
+            <label class="text-xs text-neutral-400 block mb-1">
+                金額
+            </label>
+
+            <input
+                type="number"
+                id="item-amount"
+                step="any"
+                min="0"
+                class="w-full p-2 bg-black border border-yellow-900/40 rounded text-sm text-yellow-100"
+                placeholder="0">
+
+        </div>
+
+
+        <!-- 分攤方式 -->
+
+        <div>
+
+            <div class="flex justify-between items-center mb-2">
+
+                <label class="text-xs text-neutral-400">
+                    誰需要一起分攤？
+                </label>
+
+                <div class="flex gap-1">
+
+                    <button
+                        type="button"
+                        onclick="selectAllSharers()"
+                        class="mini-button px-2 py-1 rounded text-[10px]">
+                        全選
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="selectNoSharers()"
+                        class="mini-button px-2 py-1 rounded text-[10px]">
+                        全不選
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="selectPayerOnly()"
+                        class="mini-button px-2 py-1 rounded text-[10px]">
+                        只選付款人
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="sharers-checkboxes"
+                class="flex flex-wrap gap-3 p-3 bg-black/50 border border-yellow-900/30 rounded text-xs">
+            </div>
+
+        </div>
+
+
+        <!-- 快速功能 -->
+
+        <div class="grid grid-cols-2 gap-2">
+
+            <button
+                onclick="setSplitMode('equal')"
+                id="equal-mode-btn"
+                class="py-2 rounded mini-button text-xs">
+                ⚖️ 平均分攤
+            </button>
+
+            <button
+                onclick="setSplitMode('custom')"
+                id="custom-mode-btn"
+                class="py-2 rounded mini-button text-xs">
+                ✏️ 自訂金額
+            </button>
+
+        </div>
+
+
+        <!-- 常用組合 -->
+
+        <div>
+
+            <label class="text-xs text-neutral-400 block mb-2">
+                常用組合
+            </label>
+
+            <div class="flex gap-2">
+
+                <button
+                    onclick="saveCurrentCombo()"
+                    class="mini-button px-3 py-2 rounded text-xs">
+                    ＋儲存目前組合
+                </button>
+
+                <select
+                    id="combo-select"
+                    onchange="applyCombo()"
+                    class="flex-1 p-2 bg-black border border-yellow-900/40 rounded text-xs">
+                    <option value="">選擇常用組合</option>
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- 自訂分攤 -->
+
+        <div
+            id="custom-split-area"
+            class="hidden space-y-2">
+
+            <div class="flex justify-between items-center">
+
+                <span class="text-xs text-yellow-500">
+                    自訂每人分攤金額
+                </span>
+
+                <span
+                    id="custom-total"
+                    class="text-xs font-mono text-neutral-400">
+                    合計 0
+                </span>
+
+            </div>
+
+            <div
+                id="custom-split-inputs"
+                class="space-y-2">
+            </div>
+
+        </div>
+
+
+        <button
+            onclick="addExpense()"
+            class="w-full py-2.5 text-xs rounded gold-button">
+            ＋ 新增此筆款項
+        </button>
+
+    </div>
+
+
+    <!-- 消費清單 -->
+
+    <div class="card-bg p-4 rounded-xl gold-border">
+
+        <div class="flex justify-between items-center mb-3">
+
+            <h3 class="text-xs font-semibold text-neutral-400">
+                已輸入款項
+            </h3>
+
+            <span
+                id="expense-count"
+                class="text-[10px] text-yellow-600">
+                0 筆
+            </span>
+
+        </div>
+
+        <div
+            id="expense-list"
+            class="space-y-2 max-h-72 overflow-y-auto text-xs">
+        </div>
+
+    </div>
+
+
+    <!-- 分類統計 -->
+
+    <div class="card-bg p-4 rounded-xl gold-border">
+
+        <h3 class="text-xs font-semibold text-yellow-500 mb-3">
+            📊 消費分類統計
+        </h3>
+
+        <div
+            id="category-summary"
+            class="space-y-2">
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ================= RIGHT ================= -->
+
+<div class="space-y-4">
+
+    <!-- 我的帳 -->
+
+    <div class="card-bg p-5 rounded-xl gold-border gold-glow">
+
+        <div class="flex justify-between items-center mb-4">
+
+            <div>
+
+                <span class="text-[10px] tracking-widest text-yellow-600 font-mono">
+                    MY ACCOUNT
+                </span>
+
+                <h2 class="text-lg font-bold text-yellow-400">
+                    我的帳
+                </h2>
+
+            </div>
+
+            <span
+                id="my-name-display"
+                class="text-xs text-yellow-200">
+            </span>
+
+        </div>
+
+
+        <div
+            id="my-account"
+            class="space-y-3">
+        </div>
+
+    </div>
+
+
+    <!-- 結算卡 -->
+
+    <div
+        id="settlement-card"
+        class="card-bg p-6 rounded-xl gold-border gold-glow space-y-5 relative overflow-hidden">
+
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-yellow-500/10 rounded-full blur-2xl pointer-events-none">
+        </div>
+
+
+        <div class="border-b border-yellow-900/40 pb-3 flex justify-between items-end">
+
+            <div>
+
+                <span class="text-[10px] tracking-widest text-yellow-600 font-mono block">
+                    AUREUS SETTLEMENT
+                </span>
+
+                <h2 class="text-lg font-bold text-yellow-400">
+                    最佳化轉帳結算單
+                </h2>
+
+            </div>
+
+            <div class="text-right">
+
+                <span class="text-[10px] text-neutral-500 block">
+                    總消費
+                </span>
+
+                <span
+                    id="total-amount"
+                    class="text-sm font-mono font-bold text-yellow-200">
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- 旅遊名稱 -->
+
+        <div
+            id="trip-name-display"
+            class="text-xs text-neutral-400">
+        </div>
+
+
+        <!-- 結算 -->
+
+        <div>
+
+            <h3 class="text-xs font-semibold text-yellow-600 tracking-wider mb-3">
+                最少轉帳方案：
+            </h3>
+
+            <div
+                id="settlement-results"
+                class="space-y-2.5">
+            </div>
+
+        </div>
+
+
+        <!-- 個人淨額 -->
+
+        <div class="border-t border-yellow-900/30 pt-3">
+
+            <h3 class="text-xs font-semibold text-neutral-400 mb-2">
+                個人淨額
+            </h3>
+
+            <div
+                id="person-net-list"
+                class="space-y-2">
+            </div>
+
+        </div>
+
+
+        <div class="pt-2 text-center border-t border-yellow-900/20">
+
+            <span class="text-[9px] text-neutral-600 font-mono">
+                GENERATED BY AUREUS SPLIT MATRIX
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- 操作 -->
+
+    <div class="space-y-2">
+
+        <button
+            onclick="copySettlementText()"
+            class="w-full py-2.5 text-xs rounded gold-button">
+            📋 一鍵複製 LINE 結算報告
+        </button>
+
+        <button
+            onclick="downloadCardImage()"
+            class="w-full py-2 text-xs rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/10">
+            🖼️ 下載結算卡片圖片
+        </button>
+
+    </div>
+
+
+    <!-- 已結清 -->
+
+    <div class="card-bg p-4 rounded-xl gold-border">
+
+        <div class="flex justify-between items-center mb-3">
+
+            <h3 class="text-xs font-semibold text-green-400">
+                ✓ 已結清紀錄
+            </h3>
+
+            <span
+                id="settled-count"
+                class="text-[10px] text-neutral-500">
+                0 筆
+            </span>
+
+        </div>
+
+        <div
+            id="settled-history"
+            class="space-y-2 max-h-56 overflow-y-auto">
+        </div>
+
+    </div>
+
+</div>
+
+</main>
+
+
+<footer class="w-full max-w-6xl pt-3 border-t border-yellow-900/30 text-center text-xs text-neutral-600">
+
+    AUREUS SPLIT MATRIX // 極簡轉帳最佳化算術
+
+</footer>
+
+
+<script>
+
+/* =========================================================
+   AUREUS SPLIT MATRIX
+   ========================================================= */
+
+const defaultMembers = ["小明", "阿傑", "莉莉", "小華"];
+
+let members = [];
+let expenses = [];
+
+let currentCurrency = "NT$";
+
+let splitMode = "equal";
+
+let settings = {
+    tripName: "",
+    self: ""
+};
+
+let combos = [];
+
+let settledHistory = [];
+
+let currentTransactions = [];
+
+
+/* =========================================================
+   工具
+   ========================================================= */
+
+function escapeHtml(str) {
+
+    return String(str).replace(/[&<>"']/g, function(m) {
+
+        return {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        }[m];
+
+    });
+
+}
+
+
+function money(value) {
+
+    if (Math.abs(value) < 0.005) value = 0;
+
+    return Number(value).toLocaleString(
+        undefined,
+        {
+            minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+            maximumFractionDigits: 2
+        }
+    );
+
+}
+
+
+function today() {
+
+    const d = new Date();
+
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${d.getFullYear()}-${month}-${day}`;
+
+}
+
+
+/* =========================================================
+   LocalStorage
+   ========================================================= */
+
+function saveAll() {
+
+    localStorage.setItem(
+        "aureus_members",
+        JSON.stringify(members)
+    );
+
+    localStorage.setItem(
+        "aureus_expenses",
+        JSON.stringify(expenses)
+    );
+
+    localStorage.setItem(
+        "aureus_currency",
+        currentCurrency
+    );
+
+    localStorage.setItem(
+        "aureus_settings",
+        JSON.stringify(settings)
+    );
+
+    localStorage.setItem(
+        "aureus_combos",
+        JSON.stringify(combos)
+    );
+
+    localStorage.setItem(
+        "aureus_settled_history",
+        JSON.stringify(settledHistory)
+    );
+
+}
+
+
+function loadStorageData() {
+
+    try {
+
+        const savedMembers =
+            localStorage.getItem("aureus_members");
+
+        const savedExpenses =
+            localStorage.getItem("aureus_expenses");
+
+        const savedCurrency =
+            localStorage.getItem("aureus_currency");
+
+        const savedSettings =
+            localStorage.getItem("aureus_settings");
+
+        const savedCombos =
+            localStorage.getItem("aureus_combos");
+
+        const savedSettled =
+            localStorage.getItem("aureus_settled_history");
+
+
+        members = savedMembers
+            ? JSON.parse(savedMembers)
+            : [...defaultMembers];
+
+
+        expenses = savedExpenses
+            ? JSON.parse(savedExpenses)
+            : [];
+
+
+        currentCurrency = savedCurrency || "NT$";
+
+
+        settings = savedSettings
+            ? JSON.parse(savedSettings)
+            : {
+                tripName: "",
+                self: ""
+            };
+
+
+        combos = savedCombos
+            ? JSON.parse(savedCombos)
+            : [];
+
+
+        settledHistory = savedSettled
+            ? JSON.parse(savedSettled)
+            : [];
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        members = [...defaultMembers];
+
+        expenses = [];
+
+        currentCurrency = "NT$";
+
+        settings = {
+            tripName: "",
+            self: ""
+        };
+
+        combos = [];
+
+        settledHistory = [];
+
+    }
+
+}
+
+
+/* =========================================================
+   初始化
+   ========================================================= */
+
+function init() {
+
+    loadStorageData();
+
+    document.getElementById("members-input").value =
+        members.join(", ");
+
+    document.getElementById("currency-input").value =
+        currentCurrency;
+
+    document.getElementById("trip-name").value =
+        settings.tripName || "";
+
+    document.getElementById("item-date").value =
+        today();
+
+    renderMembers();
+
+    renderCombos();
+
+    renderExpenses();
+
+    calculateAll();
+
+    setSplitMode("equal");
+
+}
+
+
+/* =========================================================
+   成員
+   ========================================================= */
+
+function updateMembers() {
+
+    const val =
+        document.getElementById("members-input").value;
+
+
+    const list =
+        val
+            .split(/[,，\s]+/)
+            .map(s => s.trim())
+            .filter(Boolean);
+
+
+    if (list.length < 2) {
+
+        alert("請至少輸入 2 位成員！");
+
+        return;
+
+    }
+
+
+    members = [...new Set(list)];
+
+
+    /*
+       不再像原本一樣直接把消費紀錄清掉。
+       但如果成員被刪除，舊紀錄仍然保留。
+    */
+
+
+    if (!members.includes(settings.self)) {
+
+        settings.self = members[0];
+
+    }
+
+
+    saveAll();
+
+    renderMembers();
+
+    calculateAll();
+
+}
+
+
+function renderMembers() {
+
+    const payer =
+        document.getElementById("payer-select");
+
+    const checkboxes =
+        document.getElementById("sharers-checkboxes");
+
+    const self =
+        document.getElementById("self-select");
+
+
+    const oldPayer = payer.value;
+
+
+    payer.innerHTML =
+        members.map(m => `
+            <option value="${escapeHtml(m)}">
+                ${escapeHtml(m)}
+            </option>
+        `).join("");
+
+
+    if (members.includes(oldPayer)) {
+
+        payer.value = oldPayer;
+
+    }
+
+
+    checkboxes.innerHTML =
+        members.map(m => `
+            <label class="inline-flex items-center gap-1.5 cursor-pointer text-yellow-200">
+
+                <input
+                    type="checkbox"
+                    value="${escapeHtml(m)}"
+                    checked
+                    class="accent-yellow-600"
+                    onchange="renderCustomSplitInputs()">
+
+                ${escapeHtml(m)}
+
+            </label>
+        `).join("");
+
+
+    self.innerHTML =
+        members.map(m => `
+            <option value="${escapeHtml(m)}">
+                ${escapeHtml(m)}
+            </option>
+        `).join("");
+
+
+    if (settings.self && members.includes(settings.self)) {
+
+        self.value = settings.self;
+
+    } else {
+
+        self.value = members[0];
+
+        settings.self = members[0];
+
+    }
+
+
+    renderCustomSplitInputs();
+
+}
+
+
+function selectPayer() {
+
+    if (splitMode === "custom") {
+
+        renderCustomSplitInputs();
+
+    }
+
+}
+
+
+/* =========================================================
+   幣別
+   ========================================================= */
+
+function updateCurrency() {
+
+    const value =
+        document
+            .getElementById("currency-input")
+            .value
+            .trim();
+
+
+    currentCurrency =
+        value || "NT$";
+
+
+    /*
+       重要：
+       這裡只改「下一筆新增消費」的幣別。
+       expenses 裡每筆資料都有自己的 currency。
+    */
+
+
+    saveAll();
+
+    renderExpenses();
+
+    calculateAll();
+
+}
+
+
+function getExpenseCurrency(expense) {
+
+    return expense.currency || "NT$";
+
+}
+
+
+/* =========================================================
+   分攤快速選擇
+   ========================================================= */
+
+function getSharerCheckboxes() {
+
+    return Array.from(
+        document.querySelectorAll(
+            "#sharers-checkboxes input[type='checkbox']"
+        )
+    );
+
+}
+
+
+function selectAllSharers() {
+
+    getSharerCheckboxes().forEach(cb => {
+
+        cb.checked = true;
+
+    });
+
+    renderCustomSplitInputs();
+
+}
+
+
+function selectNoSharers() {
+
+    getSharerCheckboxes().forEach(cb => {
+
+        cb.checked = false;
+
+    });
+
+    renderCustomSplitInputs();
+
+}
+
+
+function selectPayerOnly() {
+
+    const payer =
+        document.getElementById("payer-select").value;
+
+
+    getSharerCheckboxes().forEach(cb => {
+
+        cb.checked =
+            cb.value === payer;
+
+    });
+
+
+    renderCustomSplitInputs();
+
+}
+
+
+/* =========================================================
+   平均 / 自訂
+   ========================================================= */
+
+function setSplitMode(mode) {
+
+    splitMode = mode;
+
+
+    const customArea =
+        document.getElementById("custom-split-area");
+
+
+    const equalBtn =
+        document.getElementById("equal-mode-btn");
+
+    const customBtn =
+        document.getElementById("custom-mode-btn");
+
+
+    if (mode === "custom") {
+
+        customArea.classList.remove("hidden");
+
+        customBtn.classList.add(
+            "bg-yellow-600/20",
+            "border-yellow-400"
+        );
+
+        equalBtn.classList.remove(
+            "bg-yellow-600/20",
+            "border-yellow-400"
+        );
+
+        renderCustomSplitInputs();
+
+    } else {
+
+        customArea.classList.add("hidden");
+
+        equalBtn.classList.add(
+            "bg-yellow-600/20",
+            "border-yellow-400"
+        );
+
+        customBtn.classList.remove(
+            "bg-yellow-600/20",
+            "border-yellow-400"
+        );
+
+    }
+
+}
+
+
+function renderCustomSplitInputs() {
+
+    if (splitMode !== "custom") return;
+
+
+    const container =
+        document.getElementById("custom-split-inputs");
+
+
+    const selected =
+        getSharerCheckboxes()
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+
+    const oldValues = {};
+
+
+    container
+        .querySelectorAll("input")
+        .forEach(input => {
+
+            oldValues[input.dataset.person] =
+                input.value;
+
+        });
+
+
+    container.innerHTML =
+        selected.map(person => `
+
+            <div class="flex items-center gap-2">
+
+                <span class="text-xs text-neutral-300 w-20">
+                    ${escapeHtml(person)}
+                </span>
+
+                <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    data-person="${escapeHtml(person)}"
+                    value="${oldValues[person] || ""}"
+                    oninput="updateCustomTotal()"
+                    class="flex-1 p-2 bg-black border border-yellow-900/40 rounded text-xs">
+
+            </div>
+
+        `).join("");
+
+
+    updateCustomTotal();
+
+}
+
+
+function updateCustomTotal() {
+
+    const inputs =
+        document.querySelectorAll(
+            "#custom-split-inputs input"
+        );
+
+
+    let total = 0;
+
+
+    inputs.forEach(input => {
+
+        total += parseFloat(input.value) || 0;
+
+    });
+
+
+    const currency =
+        currentCurrency;
+
+
+    document.getElementById("custom-total")
+        .innerText =
+        `合計 ${currency} ${money(total)}`;
+
+}
+
+
+/* =========================================================
+   常用組合
+   ========================================================= */
+
+function saveCurrentCombo() {
+
+    const selected =
+        getSharerCheckboxes()
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+
+    if (selected.length === 0) {
+
+        alert("請先選擇至少一位分攤人。");
+
+        return;
+
+    }
+
+
+    const name =
+        prompt(
+            "請輸入這個常用組合的名稱，例如：四人全員、夫妻、三人組"
+        );
+
+
+    if (!name || !name.trim()) return;
+
+
+    combos.push({
+
+        id: Date.now(),
+
+        name: name.trim(),
+
+        members: selected
+
+    });
+
+
+    saveAll();
+
+    renderCombos();
+
+}
+
+
+function renderCombos() {
+
+    const select =
+        document.getElementById("combo-select");
+
+
+    select.innerHTML = `
+        <option value="">
+            選擇常用組合
+        </option>
+    `;
+
+
+    combos.forEach(combo => {
+
+        select.innerHTML += `
+            <option value="${combo.id}">
+                ${escapeHtml(combo.name)}
+            </option>
+        `;
+
+    });
+
+}
+
+
+function applyCombo() {
+
+    const id =
+        document.getElementById("combo-select").value;
+
+
+    if (!id) return;
+
+
+    const combo =
+        combos.find(c => String(c.id) === String(id));
+
+
+    if (!combo) return;
+
+
+    getSharerCheckboxes().forEach(cb => {
+
+        cb.checked =
+            combo.members.includes(cb.value);
+
+    });
+
+
+    renderCustomSplitInputs();
+
+}
+
+
+/* =========================================================
+   新增消費
+   ========================================================= */
+
+function addExpense() {
+
+    const title =
+        document
+            .getElementById("item-title")
+            .value
+            .trim() ||
+        "未命名項目";
+
+
+    const date =
+        document.getElementById("item-date").value ||
+        today();
+
+
+    const category =
+        document.getElementById("item-category").value;
+
+
+    const payer =
+        document.getElementById("payer-select").value;
+
+
+    const amount =
+        parseFloat(
+            document.getElementById("item-amount").value
+        );
+
+
+    const sharers =
+        getSharerCheckboxes()
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+
+
+    if (isNaN(amount) || amount <= 0) {
+
+        alert("請輸入有效的消費金額！");
+
+        return;
+
+    }
+
+
+    if (sharers.length === 0) {
+
+        alert("至少需要選擇一位分攤人！");
+
+        return;
+
+    }
+
+
+    let splitAmounts = {};
+
+
+    if (splitMode === "equal") {
+
+        const each =
+            amount / sharers.length;
+
+
+        sharers.forEach(person => {
+
+            splitAmounts[person] = each;
+
+        });
+
+
+    } else {
+
+        const inputs =
+            document.querySelectorAll(
+                "#custom-split-inputs input"
+            );
+
+
+        let customTotal = 0;
+
+
+        inputs.forEach(input => {
+
+            const person =
+                input.dataset.person;
+
+            const value =
+                parseFloat(input.value) || 0;
+
+
+            splitAmounts[person] = value;
+
+            customTotal += value;
+
+        });
+
+
+        if (Math.abs(customTotal - amount) > 0.01) {
+
+            alert(
+                `自訂分攤合計不正確！\n\n` +
+                `消費金額：${currentCurrency} ${money(amount)}\n` +
+                `分攤合計：${currentCurrency} ${money(customTotal)}`
+            );
+
+            return;
+
+        }
+
+    }
+
+
+    expenses.push({
+
+        id: Date.now(),
+
+        date,
+
+        title,
+
+        category,
+
+        payer,
+
+        amount,
+
+        currency: currentCurrency,
+
+        sharers,
+
+        splitAmounts
+
+    });
+
+
+    saveAll();
+
+
+    document.getElementById("item-title").value = "";
+
+    document.getElementById("item-amount").value = "";
+
+
+    renderExpenses();
+
+    calculateAll();
+
+}
+
+
+/* =========================================================
+   消費列表
+   ========================================================= */
+
+function removeExpense(id) {
+
+    if (!confirm("確定要刪除這筆消費嗎？")) return;
+
+
+    expenses =
+        expenses.filter(e => e.id !== id);
+
+
+    saveAll();
+
+    renderExpenses();
+
+    calculateAll();
+
+}
+
+
+function renderExpenses() {
+
+    const list =
+        document.getElementById("expense-list");
+
+
+    document.getElementById("expense-count")
+        .innerText =
+        `${expenses.length} 筆`;
+
+
+    if (expenses.length === 0) {
+
+        list.innerHTML =
+            `<p class="text-neutral-600">
+                尚未新增任何款項
+            </p>`;
+
+        return;
+
+    }
+
+
+    const sorted =
+        [...expenses].sort(
+            (a, b) =>
+                String(b.date).localeCompare(
+                    String(a.date)
+                )
+        );
+
+
+    list.innerHTML =
+        sorted.map(e => {
+
+            const splitText =
+                Object.entries(
+                    e.splitAmounts || {}
+                )
+                .map(
+                    ([person, amount]) =>
+                        `${person} ${money(amount)}`
+                )
+                .join(" / ");
+
+
+            return `
+
+                <div class="p-3 bg-black/60 rounded border border-yellow-900/30">
+
+                    <div class="flex justify-between items-start gap-2">
+
+                        <div class="min-w-0">
+
+                            <div class="flex items-center gap-2">
+
+                                <span class="font-bold text-yellow-200">
+                                    ${escapeHtml(e.title)}
+                                </span>
+
+                                <span class="text-[10px] text-neutral-500">
+                                    ${escapeHtml(e.category)}
+                                </span>
+
+                            </div>
+
+                            <div class="text-[10px] text-neutral-400 mt-1">
+
+                                ${escapeHtml(e.date)}
+                                ·
+                                ${escapeHtml(e.payer)} 付款
+                                ·
+                                ${escapeHtml(getExpenseCurrency(e))}
+                                ${money(e.amount)}
+
+                            </div>
+
+                            <div class="text-[10px] text-neutral-500 mt-1">
+
+                                分攤：
+                                ${escapeHtml(splitText)}
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            onclick="removeExpense(${e.id})"
+                            class="text-red-500 hover:text-red-400 font-bold px-2">
+                            ✕
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }).join("");
+
+
+    renderCategorySummary();
+
+}
+
+
+/* =========================================================
+   分類統計
+   ========================================================= */
+
+function renderCategorySummary() {
+
+    const container =
+        document.getElementById("category-summary");
+
+
+    const data = {};
+
+
+    expenses.forEach(e => {
+
+        const currency =
+            getExpenseCurrency(e);
+
+
+        if (!data[currency]) {
+
+            data[currency] = {};
+
+        }
+
+
+        const category =
+            e.category || "💰 其他";
+
+
+        if (!data[currency][category]) {
+
+            data[currency][category] = 0;
+
+        }
+
+
+        data[currency][category] +=
+            Number(e.amount) || 0;
+
+    });
+
+
+    if (Object.keys(data).length === 0) {
+
+        container.innerHTML =
+            `<p class="text-xs text-neutral-600">
+                尚無消費資料
+            </p>`;
+
+        return;
+
+    }
+
+
+    let html = "";
+
+
+    Object.entries(data).forEach(
+        ([currency, categories]) => {
+
+            html += `
+
+                <div class="mb-3">
+
+                    <div class="text-xs text-yellow-600 font-bold mb-2">
+                        ${escapeHtml(currency)}
+                    </div>
+
+            `;
+
+
+            Object.entries(categories)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(
+                    ([category, amount]) => {
+
+                        html += `
+
+                            <div class="flex justify-between p-2 bg-black/40 rounded mb-1">
+
+                                <span class="text-xs text-neutral-300">
+                                    ${escapeHtml(category)}
+                                </span>
+
+                                <span class="text-xs font-mono text-yellow-200">
+                                    ${escapeHtml(currency)}
+                                    ${money(amount)}
+                                </span>
+
+                            </div>
+
+                        `;
+
+                    }
+                );
+
+
+            html += `</div>`;
+
+        }
+    );
+
+
+    container.innerHTML = html;
+
+}
+
+
+/* =========================================================
+   核心：計算各人淨額
+   ========================================================= */
+
+function calculateBalances(currency) {
+
+    const balances = {};
+
+
+    members.forEach(person => {
+
+        balances[person] = 0;
+
+    });
+
+
+    expenses
+        .filter(
+            e =>
+                getExpenseCurrency(e) === currency
+        )
+        .forEach(e => {
+
+            balances[e.payer] +=
+                Number(e.amount);
+
+
+            if (e.splitAmounts) {
+
+                Object.entries(e.splitAmounts)
+                    .forEach(
+                        ([person, amount]) => {
+
+                            if (
+                                balances[person] === undefined
+                            ) {
+
+                                balances[person] = 0;
+
+                            }
+
+
+                            balances[person] -=
+                                Number(amount);
+
+                        }
+                    );
+
+            } else {
+
+                const each =
+                    e.amount /
+                    e.sharers.length;
+
+
+                e.sharers.forEach(person => {
+
+                    balances[person] -= each;
+
+                });
+
+            }
+
+        });
+
+
+    return balances;
+
+}
+
+
+/* =========================================================
+   真正最少交易次數
+   =========================================================
+
+   對於少量成員，使用 subset DP 尋找
+   最佳零和群組，再在群組內結算。
+
+   成員很多時，自動退回 greedy，
+   避免瀏覽器計算量爆炸。
+   */
+
+function optimizeTransactions(balances) {
+
+    const people =
+        Object.keys(balances)
+            .filter(
+                p =>
+                    Math.abs(balances[p]) > 0.005
+            );
+
+
+    if (people.length <= 1) {
+
+        return [];
+
+    }
+
+
+    /*
+       成員超過 16 人：
+       使用 greedy，保持瀏覽器速度。
+    */
+
+    if (people.length > 16) {
+
+        return greedyTransactions(balances);
+
+    }
+
+
+    const n = people.length;
+
+
+    const amounts =
+        people.map(
+            p => Math.round(balances[p] * 100)
+        );
+
+
+    const fullMask =
+        (1 << n) - 1;
+
+
+    const subsetSum =
+        new Array(1 << n).fill(0);
+
+
+    for (let mask = 1; mask <= fullMask; mask++) {
+
+        const bit =
+            mask & -mask;
+
+
+        const index =
+            Math.log2(bit);
+
+
+        const previous =
+            mask ^ bit;
+
+
+        subsetSum[mask] =
+            subsetSum[previous] +
+            amounts[index];
+
+    }
+
+
+    /*
+       dp[mask] = 最少可以把 mask 分成幾個
+       零和群組。
+    */
+
+    const dp =
+        new Array(1 << n).fill(Infinity);
+
+
+    const choice =
+        new Array(1 << n).fill(0);
+
+
+    dp[0] = 0;
+
+
+    for (let mask = 1; mask <= fullMask; mask++) {
+
+        /*
+           若整個 mask 本身就是零和群組
+        */
+
+        if (subsetSum[mask] === 0) {
+
+            dp[mask] = 1;
+
+            choice[mask] = mask;
+
+        }
+
+
+        /*
+           固定第一個 bit，避免重複枚舉
+        */
+
+        const firstBit =
+            mask & -mask;
+
+
+        for (
+            let sub = mask;
+            sub;
+            sub = (sub - 1) & mask
+        ) {
+
+            if (!(sub & firstBit)) continue;
+
+            if (subsetSum[sub] !== 0) continue;
+
+            const remain =
+                mask ^ sub;
+
+
+            if (
+                dp[remain] !== Infinity &&
+                dp[remain] + 1 < dp[mask]
+            ) {
+
+                dp[mask] =
+                    dp[remain] + 1;
+
+                choice[mask] = sub;
+
+            }
+
+        }
+
+    }
+
+
+    /*
+       找出最佳零和群組
+    */
+
+    const groups = [];
+
+    let remaining =
+        fullMask;
+
+
+    while (remaining) {
+
+        const group =
+            choice[remaining];
+
+
+        if (!group) {
+
+            return greedyTransactions(balances);
+
+        }
+
+
+        groups.push(group);
+
+        remaining ^= group;
+
+    }
+
+
+    /*
+       每個群組如果有 k 個人，
+       最少只需要 k-1 筆交易。
+    */
+
+    const transactions = [];
+
+
+    groups.forEach(mask => {
+
+        const groupBalances = {};
+
+
+        for (let i = 0; i < n; i++) {
+
+            if (mask & (1 << i)) {
+
+                groupBalances[people[i]] =
+                    balances[people[i]];
+
+            }
+
+        }
+
+
+        transactions.push(
+            ...greedyTransactions(groupBalances)
+        );
+
+    });
+
+
+    return transactions;
+
+}
+
+
+/* =========================================================
+   Greedy
+   ========================================================= */
+
+function greedyTransactions(balances) {
+
+    const debtors = [];
+
+    const creditors = [];
+
+
+    Object.entries(balances).forEach(
+        ([person, amount]) => {
+
+            if (amount < -0.005) {
+
+                debtors.push({
+
+                    person,
+
+                    amount: -amount
+
+                });
+
+            }
+
+
+            if (amount > 0.005) {
+
+                creditors.push({
+
+                    person,
+
+                    amount
+
+                });
+
+            }
+
+        }
+    );
+
+
+    debtors.sort(
+        (a, b) => b.amount - a.amount
+    );
+
+
+    creditors.sort(
+        (a, b) => b.amount - a.amount
+    );
+
+
+    const result = [];
+
+    let i = 0;
+    let j = 0;
+
+
+    while (
+        i < debtors.length &&
+        j < creditors.length
+    ) {
+
+        const pay =
+            Math.min(
+                debtors[i].amount,
+                creditors[j].amount
+            );
+
+
+        if (pay > 0.005) {
+
+            result.push({
+
+                from: debtors[i].person,
+
+                to: creditors[j].person,
+
+                amount: pay
+
+            });
+
+        }
+
+
+        debtors[i].amount -= pay;
+
+        creditors[j].amount -= pay;
+
+
+        if (debtors[i].amount <= 0.005) {
+
+            i++;
+
+        }
+
+
+        if (creditors[j].amount <= 0.005) {
+
+            j++;
+
+        }
+
+    }
+
+
+    return result;
+
+}
+
+
+/* =========================================================
+   取得結算交易 Key
+   ========================================================= */
+
+function transactionKey(t, currency) {
+
+    return [
+        currency,
+        t.from,
+        t.to,
+        Number(t.amount).toFixed(2)
+    ].join("|");
+
+}
+
+
+function isSettled(t, currency) {
+
+    const key =
+        transactionKey(t, currency);
+
+
+    return settledHistory.some(
+        h => h.key === key
+    );
+
+}
+
+
+/* =========================================================
+   全部計算
+   ========================================================= */
+
+function calculateAll() {
+
+    renderCategorySummary();
+
+    renderMyAccount();
+
+    renderSettlement();
+
+    renderSettledHistory();
+
+}
+
+
+/* =========================================================
+   我的帳
+   ========================================================= */
+
+function renderMyAccount() {
+
+    const container =
+        document.getElementById("my-account");
+
+
+    const name =
+        settings.self ||
+        members[0];
+
+
+    document.getElementById("my-name-display")
+        .innerText =
+        name || "";
+
+
+    if (!name) {
+
+        container.innerHTML =
+            `<p class="text-xs text-neutral-500">
+                尚未設定身份
+            </p>`;
+
+        return;
+
+    }
+
+
+    const currencies =
+        [...new Set(
+            expenses.map(
+                e => getExpenseCurrency(e)
+            )
+        )];
+
+
+    if (currencies.length === 0) {
+
+        container.innerHTML =
+            `<p class="text-xs text-neutral-500">
+                目前還沒有消費紀錄。
+            </p>`;
+
+        return;
+
+    }
+
+
+    let html = "";
+
+
+    currencies.forEach(currency => {
+
+        const balances =
+            calculateBalances(currency);
+
+
+        const value =
+            balances[name] || 0;
+
+
+        let state = "";
+
+        if (value > 0.005) {
+
+            state = `
+                <div class="p-4 rounded-lg bg-green-950/20 border border-green-900/50">
+
+                    <div class="text-xs text-green-400 mb-1">
+                        🟢 你應收
+                    </div>
+
+                    <div class="text-xl font-bold font-mono text-green-300">
+                        ${escapeHtml(currency)}
+                        ${money(value)}
+                    </div>
+
+                </div>
+            `;
+
+        } else if (value < -0.005) {
+
+            state = `
+                <div class="p-4 rounded-lg bg-red-950/20 border border-red-900/50">
+
+                    <div class="text-xs text-red-400 mb-1">
+                        🔴 你應付
+                    </div>
+
+                    <div class="text-xl font-bold font-mono text-red-300">
+                        ${escapeHtml(currency)}
+                        ${money(Math.abs(value))}
+                    </div>
+
+                </div>
+            `;
+
+        } else {
+
+            state = `
+                <div class="p-4 rounded-lg bg-black/40 border border-yellow-900/30">
+
+                    <div class="text-xs text-neutral-400 mb-1">
+                        ⚪ ${escapeHtml(currency)}
+                    </div>
+
+                    <div class="text-lg font-bold font-mono text-neutral-300">
+                        已平衡
+                    </div>
+
+                </div>
+            `;
+
+        }
+
+
+        html += state;
+
+    });
+
+
+    container.innerHTML = html;
+
+}
+
+
+/* =========================================================
+   結算
+   ========================================================= */
+
+function renderSettlement() {
+
+    const currencies =
+        [...new Set(
+            expenses.map(
+                e => getExpenseCurrency(e)
+            )
+        )];
+
+
+    const resultEl =
+        document.getElementById(
+            "settlement-results"
+        );
+
+
+    const netEl =
+        document.getElementById(
+            "person-net-list"
+        );
+
+
+    const trip =
+        settings.tripName ||
+        "AUREUS TRIP";
+
+
+    document.getElementById(
+        "trip-name-display"
+    ).innerText = trip;
+
+
+    /*
+       總消費
+    */
+
+    const totals = {};
+
+
+    expenses.forEach(e => {
+
+        const currency =
+            getExpenseCurrency(e);
+
+
+        if (!totals[currency]) {
+
+            totals[currency] = 0;
+
+        }
+
+
+        totals[currency] +=
+            Number(e.amount);
+
+    });
+
+
+    document.getElementById(
+        "total-amount"
+    ).innerHTML =
+        Object.entries(totals)
+            .map(
+                ([currency, amount]) =>
+                    `${escapeHtml(currency)} ${money(amount)}`
+            )
+            .join("<br>");
+
+
+    currentTransactions = [];
+
+
+    if (currencies.length === 0) {
+
+        resultEl.innerHTML =
+            `<p class="text-xs text-neutral-500 italic">
+                請先新增款項以計算最佳轉帳方式。
+            </p>`;
+
+
+        netEl.innerHTML = "";
+
+        return;
+
+    }
+
+
+    let resultHtml = "";
+
+    let netHtml = "";
+
+
+    currencies.forEach(currency => {
+
+        const balances =
+            calculateBalances(currency);
+
+
+        const transactions =
+            optimizeTransactions(balances);
+
+
+        transactions.forEach(t => {
+
+            t.currency = currency;
+
+            currentTransactions.push(t);
+
+        });
+
+
+        resultHtml += `
+
+            <div class="text-[10px] text-yellow-600 font-bold mt-3 mb-2">
+                ${escapeHtml(currency)}
+            </div>
+
+        `;
+
+
+        if (transactions.length === 0) {
+
+            resultHtml += `
+                <p class="text-xs text-green-400 font-bold">
+                    🎉 ${escapeHtml(currency)} 帳目完全平衡
+                </p>
+            `;
+
+        } else {
+
+            transactions.forEach(t => {
+
+                const settled =
+                    isSettled(t, currency);
+
+
+                resultHtml += `
+
+                    <div class="
+                        p-3
+                        rounded-lg
+                        border
+                        ${settled
+                            ? "border-green-900/40 bg-green-950/10 settled"
+                            : "border-yellow-600/40 bg-yellow-950/20"
+                        }
+                    ">
+
+                        <div class="flex justify-between items-center gap-2">
+
+                            <div class="flex items-center gap-2 text-xs flex-wrap">
+
+                                <span class="px-2 py-0.5 bg-red-950 text-red-300 border border-red-800/60 rounded font-bold">
+                                    ${escapeHtml(t.from)}
+                                </span>
+
+                                <span class="text-yellow-600">
+                                    ➔
+                                </span>
+
+                                <span class="px-2 py-0.5 bg-green-950 text-green-300 border border-green-800/60 rounded font-bold">
+                                    ${escapeHtml(t.to)}
+                                </span>
+
+                            </div>
+
+                            <span class="font-mono text-sm font-extrabold text-yellow-300 whitespace-nowrap">
+                                ${escapeHtml(currency)}
+                                ${money(t.amount)}
+                            </span>
+
+                        </div>
+
+
+                        <div class="flex justify-end mt-2">
+
+                            ${
+                                settled
+                                ?
+
+                                `<button
+                                    onclick="unsettleTransaction(
+                                        '${encodeURIComponent(t.from)}',
+                                        '${encodeURIComponent(t.to)}',
+                                        '${encodeURIComponent(currency)}',
+                                        ${t.amount}
+                                    )"
+                                    class="text-[10px] text-green-400">
+                                    ✓ 已結清（取消）
+                                </button>`
+
+                                :
+
+                                `<button
+                                    onclick="settleTransaction(
+                                        '${encodeURIComponent(t.from)}',
+                                        '${encodeURIComponent(t.to)}',
+                                        '${encodeURIComponent(currency)}',
+                                        ${t.amount}
+                                    )"
+                                    class="text-[10px] text-yellow-400 hover:text-yellow-200">
+                                    ○ 標記為已結清
+                                </button>`
+                            }
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            });
+
+        }
+
+
+        /*
+           個人淨額
+        */
+
+        netHtml += `
+
+            <div class="text-[10px] text-yellow-600 font-bold mt-3 mb-2">
+                ${escapeHtml(currency)}
+            </div>
+
+        `;
+
+
+        Object.entries(balances).forEach(
+            ([person, amount]) => {
+
+                const rounded =
+                    Math.abs(amount) < 0.005
+                        ? 0
+                        : amount;
+
+
+                const cls =
+                    rounded > 0
+                        ? "text-green-400"
+                        : rounded < 0
+                            ? "text-red-400"
+                            : "text-neutral-500";
+
+
+                const sign =
+                    rounded > 0
+                        ? "+"
+                        : "";
+
+
+                netHtml += `
+
+                    <div class="flex justify-between p-2 bg-black/40 rounded border border-yellow-900/20">
+
+                        <span class="text-neutral-300">
+                            ${escapeHtml(person)}
+                        </span>
+
+                        <span class="${cls} font-bold font-mono">
+
+                            ${sign}
+                            ${escapeHtml(currency)}
+                            ${money(rounded)}
+
+                        </span>
+
+                    </div>
+
+                `;
+
+            }
+        );
+
+    });
+
+
+    resultEl.innerHTML =
+        resultHtml;
+
+
+    netEl.innerHTML =
+        netHtml;
+
+}
+
+
+/* =========================================================
+   已結清
+   ========================================================= */
+
+function settleTransaction(
+    fromEncoded,
+    toEncoded,
+    currencyEncoded,
+    amount
+) {
+
+    const from =
+        decodeURIComponent(fromEncoded);
+
+    const to =
+        decodeURIComponent(toEncoded);
+
+    const currency =
+        decodeURIComponent(currencyEncoded);
+
+
+    const transaction = {
+
+        from,
+
+        to,
+
+        amount,
+
+        currency
+
+    };
+
+
+    const key =
+        transactionKey(
+            transaction,
+            currency
+        );
+
+
+    if (
+        settledHistory.some(
+            h => h.key === key
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    settledHistory.push({
+
+        key,
+
+        from,
+
+        to,
+
+        amount,
+
+        currency,
+
+        time: new Date().toLocaleString(
+            "zh-TW"
+        )
+
+    });
+
+
+    saveAll();
+
+    renderSettlement();
+
+    renderSettledHistory();
+
+}
+
+
+function unsettleTransaction(
+    fromEncoded,
+    toEncoded,
+    currencyEncoded,
+    amount
+) {
+
+    const from =
+        decodeURIComponent(fromEncoded);
+
+    const to =
+        decodeURIComponent(toEncoded);
+
+    const currency =
+        decodeURIComponent(currencyEncoded);
+
+
+    const temp = {
+
+        from,
+
+        to,
+
+        amount
+
+    };
+
+
+    const key =
+        transactionKey(
+            temp,
+            currency
+        );
+
+
+    settledHistory =
+        settledHistory.filter(
+            h => h.key !== key
+        );
+
+
+    saveAll();
+
+    renderSettlement();
+
+    renderSettledHistory();
+
+}
+
+
+function renderSettledHistory() {
+
+    const container =
+        document.getElementById(
+            "settled-history"
+        );
+
+
+    document.getElementById(
+        "settled-count"
+    ).innerText =
+        `${settledHistory.length} 筆`;
+
+
+    if (settledHistory.length === 0) {
+
+        container.innerHTML =
+            `<p class="text-xs text-neutral-600">
+                尚無已結清紀錄
+            </p>`;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        [...settledHistory]
+            .reverse()
+            .map(h => `
+
+                <div class="p-2 bg-green-950/10 border border-green-900/30 rounded">
+
+                    <div class="flex justify-between">
+
+                        <span class="text-xs text-green-300">
+
+                            ✓
+                            ${escapeHtml(h.from)}
+                            →
+                            ${escapeHtml(h.to)}
+
+                        </span>
+
+                        <span class="text-xs font-mono text-green-400">
+
+                            ${escapeHtml(h.currency)}
+                            ${money(h.amount)}
+
+                        </span>
+
+                    </div>
+
+                    <div class="text-[9px] text-neutral-600 mt-1">
+
+                        ${escapeHtml(h.time)}
+
+                    </div>
+
+                </div>
+
+            `)
+            .join("");
+
+}
+
+
+/* =========================================================
+   LINE
+   ========================================================= */
+
+function copySettlementText() {
+
+    if (
+        currentTransactions.length === 0
+    ) {
+
+        alert(
+            "目前沒有需要結算的轉帳項目！"
+        );
+
+        return;
+
+    }
+
+
+    let text =
+        `💰【AUREUS 旅遊聚會結算報告】\n`;
+
+
+    text +=
+        `📍 ${settings.tripName || "AUREUS TRIP"}\n`;
+
+
+    text +=
+        `---------------------------\n`;
+
+
+    const totals = {};
+
+
+    expenses.forEach(e => {
+
+        const currency =
+            getExpenseCurrency(e);
+
+
+        totals[currency] =
+            (totals[currency] || 0) +
+            Number(e.amount);
+
+    });
+
+
+    Object.entries(totals)
+        .forEach(
+            ([currency, amount]) => {
+
+                text +=
+                    `💵 ${currency} ${money(amount)}\n`;
+
+            }
+        );
+
+
+    text +=
+        `\n✨ 最簡化最佳轉帳方案\n`;
+
+
+    const grouped = {};
+
+
+    currentTransactions.forEach(t => {
+
+        if (!grouped[t.currency]) {
+
+            grouped[t.currency] = [];
+
+        }
+
+
+        grouped[t.currency].push(t);
+
+    });
+
+
+    Object.entries(grouped)
+        .forEach(
+            ([currency, transactions]) => {
+
+                text +=
+                    `\n【${currency}】\n`;
+
+
+                transactions.forEach(
+                    (t, index) => {
+
+                        const settled =
+                            isSettled(
+                                t,
+                                currency
+                            );
+
+
+                        text +=
+                            `${index + 1}. ` +
+                            `${t.from} ➔ ${t.to}：` +
+                            `${currency} ${money(t.amount)}` +
+                            (
+                                settled
+                                    ? " ✓ 已結清"
+                                    : ""
+                            ) +
+                            `\n`;
+
+                    }
+                );
+
+            }
+        );
+
+
+    text +=
+        `---------------------------\n`;
+
+
+    text +=
+        `請大家確認後完成轉帳！🚀`;
+
+
+    navigator.clipboard
+        .writeText(text)
+        .then(() => {
+
+            alert(
+                "已複製結算文字報告，可直接貼到 LINE！"
+            );
+
+        })
+        .catch(() => {
+
+            alert(
+                "複製失敗，請確認瀏覽器允許剪貼簿功能。"
+            );
+
+        });
+
+}
+
+
+/* =========================================================
+   下載圖卡
+   ========================================================= */
+
+function downloadCardImage() {
+
+    const card =
+        document.getElementById(
+            "settlement-card"
+        );
+
+
+    html2canvas(
+        card,
+        {
+            backgroundColor: "#0b0b0d",
+            scale: 2
+        }
+    ).then(canvas => {
+
+        const link =
+            document.createElement("a");
+
+
+        link.download =
+            `Aureus-Settlement-${today()}.png`;
+
+
+        link.href =
+            canvas.toDataURL("image/png");
+
+
+        link.click();
+
+    });
+
+}
+
+
+/* =========================================================
+   旅遊名稱
+   ========================================================= */
+
+function saveSettings() {
+
+    settings.tripName =
+        document
+            .getElementById("trip-name")
+            .value
+            .trim();
+
+
+    settings.self =
+        document.getElementById("self-select").value;
+
+
+    saveAll();
+
+    renderSettlement();
+
+}
+
+
+/* =========================================================
+   重置
+   ========================================================= */
+
+function resetAll() {
+
+    if (
+        !confirm(
+            "確定要重置所有成員、消費、常用組合、已結清紀錄嗎？\n\n這個動作無法復原。"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    localStorage.removeItem(
+        "aureus_members"
+    );
+
+    localStorage.removeItem(
+        "aureus_expenses"
+    );
+
+    localStorage.removeItem(
+        "aureus_currency"
+    );
+
+    localStorage.removeItem(
+        "aureus_settings"
+    );
+
+    localStorage.removeItem(
+        "aureus_combos"
+    );
+
+    localStorage.removeItem(
+        "aureus_settled_history"
+    );
+
+
+    members =
+        [...defaultMembers];
+
+
+    expenses = [];
+
+
+    currentCurrency =
+        "NT$";
+
+
+    settings = {
+
+        tripName: "",
+
+        self: members[0]
+
+    };
+
+
+    combos = [];
+
+
+    settledHistory = [];
+
+
+    document.getElementById(
+        "members-input"
+    ).value =
+        members.join(", ");
+
+
+    document.getElementById(
+        "currency-input"
+    ).value =
+        "NT$";
+
+
+    document.getElementById(
+        "trip-name"
+    ).value =
+        "";
+
+
+    renderMembers();
+
+    renderCombos();
+
+    renderExpenses();
+
+    calculateAll();
+
+}
+
+
+/* =========================================================
+   啟動
+   ========================================================= */
+
+init();
+
+</script>
+
+</body>
+</html>
