@@ -46,15 +46,15 @@
                 <div>
                     <h2 class="text-sm font-bold text-yellow-400 mb-2">1. 參與成員 (用逗號或空格分開)</h2> 
                     <div class="flex gap-2"> 
-                        <input type="text" id="members-input" value="小明, 阿傑, 莉莉, 小華" class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500" placeholder="例如: 小明, 阿傑, 莉莉"> 
+                        <input type="text" id="members-input" class="w-full p-2.5 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500" placeholder="例如: 小明, 阿傑, 莉莉"> 
                         <button onclick="updateMembers()" class="px-4 text-xs rounded gold-button shrink-0">更新成員</button> 
                     </div> 
                 </div>
 
                 <div class="border-t border-yellow-900/30 pt-3">
-                    <label class="text-xs text-neutral-400 block mb-1">顯示幣別 (單位名稱，刷新頁面後恢復為台幣)</label>
+                    <label class="text-xs text-neutral-400 block mb-1">顯示幣別 (自動儲存)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="currency-input" value="NT$" class="w-full p-2 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500" placeholder="例如: NT$, JPY, USD, HKD">
+                        <input type="text" id="currency-input" class="w-full p-2 bg-black border border-yellow-900/50 rounded text-sm text-yellow-100 placeholder-neutral-600 focus:outline-none focus:border-yellow-500" placeholder="例如: NT$, JPY, USD">
                         <button onclick="updateCurrency()" class="px-3 text-xs rounded border border-yellow-600 text-yellow-400 hover:bg-yellow-500/10 shrink-0">變更幣別</button>
                     </div>
                 </div>
@@ -148,9 +148,10 @@
  
     <!-- JS Logic --> 
     <script> 
-        let members = ["小明", "阿傑", "莉莉", "小華"]; 
+        let defaultMembers = ["小明", "阿傑", "莉莉", "小華"];
+        let members = []; 
         let expenses = []; 
-        let currentCurrency = "NT$"; // 預設幣別
+        let currentCurrency = "NT$"; 
 
         // 防 XSS 輔助函式
         function escapeHtml(str) {
@@ -159,16 +160,40 @@
             });
         }
 
+        // 讀取本地快取資料
+        function loadStorageData() {
+            const savedMembers = localStorage.getItem('aureus_members');
+            const savedExpenses = localStorage.getItem('aureus_expenses');
+            const savedCurrency = localStorage.getItem('aureus_currency');
+
+            members = savedMembers ? JSON.parse(savedMembers) : defaultMembers;
+            expenses = savedExpenses ? JSON.parse(savedExpenses) : [];
+            currentCurrency = savedCurrency ? savedCurrency : "NT$";
+
+            document.getElementById('members-input').value = members.join(', ');
+            document.getElementById('currency-input').value = currentCurrency;
+        }
+
+        // 保存資料到本地
+        function saveStorageData() {
+            localStorage.setItem('aureus_members', JSON.stringify(members));
+            localStorage.setItem('aureus_expenses', JSON.stringify(expenses));
+            localStorage.setItem('aureus_currency', currentCurrency);
+        }
+
         // 初始化 
         function init() { 
+            loadStorageData();
             renderMembers(); 
             updateCurrencyUI();
+            renderExpenses();
             calculateSettlement(); 
         } 
 
         function updateCurrency() {
             const inputVal = document.getElementById('currency-input').value.trim();
             currentCurrency = inputVal !== "" ? inputVal : "NT$";
+            saveStorageData();
             updateCurrencyUI();
             renderExpenses();
             calculateSettlement();
@@ -187,6 +212,7 @@
             } 
             members = [...new Set(list)]; 
             expenses = []; // 重新設定成員時重置款項 
+            saveStorageData();
             renderMembers(); 
             renderExpenses(); 
             calculateSettlement(); 
@@ -222,6 +248,7 @@
             } 
  
             expenses.push({ id: Date.now(), title, payer, amount, sharers }); 
+            saveStorageData();
              
             // 清空輸入框 
             document.getElementById('item-title').value = ''; 
@@ -233,6 +260,7 @@
  
         function removeExpense(id) { 
             expenses = expenses.filter(e => e.id !== id); 
+            saveStorageData();
             renderExpenses(); 
             calculateSettlement(); 
         } 
@@ -255,7 +283,7 @@
             `).join(''); 
         } 
  
-        // 核心：最小流演算法 (Min-Flow Settlement Optimization) 
+        // 核心：最小流演算法 
         function calculateSettlement() { 
             const netBalances = {}; 
             members.forEach(m => netBalances[m] = 0); 
@@ -286,9 +314,9 @@
                 `; 
             }).join(''); 
  
-            // 雙指標最小流貪婪求解 (Min-Flow Algorithm) 
-            const debtors = [];  // 欠錢者 (負值) 
-            const creditors = []; // 應收錢者 (正值) 
+            // 雙指標最小流貪婪求解 
+            const debtors = [];  
+            const creditors = []; 
  
             Object.entries(netBalances).forEach(([person, amount]) => { 
                 const rounded = Math.round(amount); 
@@ -369,12 +397,22 @@
                 link.click(); 
             }); 
         } 
- 
+
+        // 重置所有紀錄與快取
         function resetAll() { 
-            if (confirm("確定要重置所有成員與消費紀錄嗎？")) { 
-                expenses = []; 
-                document.getElementById('currency-input').value = 'NT$';
-                currentCurrency = 'NT$';
+            if (confirm("確定要重置所有成員與消費紀錄嗎？這會清除儲存的資料！")) { 
+                localStorage.removeItem('aureus_members');
+                localStorage.removeItem('aureus_expenses');
+                localStorage.removeItem('aureus_currency');
+
+                members = defaultMembers;
+                expenses = [];
+                currentCurrency = "NT$";
+
+                document.getElementById('members-input').value = members.join(', ');
+                document.getElementById('currency-input').value = currentCurrency;
+
+                renderMembers(); 
                 updateCurrencyUI();
                 renderExpenses(); 
                 calculateSettlement(); 
